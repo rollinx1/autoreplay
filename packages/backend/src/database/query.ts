@@ -1,8 +1,9 @@
-import { getProjectId } from "@caido-utils/backend-sdk";
 import type { SDK } from "caido:plugin";
 import type { Database } from "sqlite";
 
 import type { CheckRule, Session } from "../types";
+
+import { getProjectId } from "./helpers";
 
 async function getDb(sdk: SDK): Promise<Database> {
   return await sdk.meta.db();

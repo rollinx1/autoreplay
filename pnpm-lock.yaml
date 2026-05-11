@@ -41,9 +41,6 @@ importers:
 
   packages/backend:
     dependencies:
-      '@caido-utils/backend-sdk':
-        specifier: ^0.1.2
-        version: 0.1.2(@caido/sdk-backend@0.46.0)
       '@caido-utils/parser':
         specifier: ^0.5.2
         version: 0.5.2
@@ -138,11 +135,6 @@ packages:
     resolution: {integrity: sha512-WAWmPdEahh4e24sO4crt+nvqZryhKsy4yP5QYGoyUKqEYVAct5S/lI9fHdoIRQPJDSds3ayB6jgMKAlifd8BAg==}
     engines: {node: '>=20', pnpm: '>=9'}
     hasBin: true
-
-  '@caido-utils/backend-sdk@0.1.2':
-    resolution: {integrity: sha512-GAc88/VNB2z6JzQwE0S48nlhmoGp6a4j/4Y8jEY8Gz3TTvf3W/6zTqPbTERCnanTOClvfm+mt6ZDzq1T60PkpQ==}
-    peerDependencies:
-      '@caido/sdk-backend': '>=0.46.0'
 
   '@caido-utils/frontend-sdk@0.1.0':
     resolution: {integrity: sha512-ovsBQQQXrQlms28jad0vOXe7+82WJyjnIbOcOkC+6Atjp7SVPnzrVP+/tXTmSWXXLHZBzgRaDyOtysGwntTOTw==}
@@ -2194,9 +2186,6 @@ packages:
     resolution: {integrity: sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg==}
     engines: {node: '>=0.6'}
 
-  querystringify@2.2.0:
-    resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
-
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -2236,9 +2225,6 @@ packages:
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
-
-  requires-port@1.0.0:
-    resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
 
   resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -2588,9 +2574,6 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  url-parse@1.5.10:
-    resolution: {integrity: sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==}
-
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -2788,12 +2771,6 @@ snapshots:
       - typescript
       - utf-8-validate
       - yaml
-
-  '@caido-utils/backend-sdk@0.1.2(@caido/sdk-backend@0.46.0)':
-    dependencies:
-      '@caido/sdk-backend': 0.46.0
-      sqlite: 5.1.1
-      url-parse: 1.5.10
 
   '@caido-utils/frontend-sdk@0.1.0(@caido/sdk-frontend@0.46.0(@codemirror/view@6.28.1))(@codemirror/view@6.28.1)(primevue@4.1.0(vue@3.4.37(typescript@5.5.4)))(vue@3.4.37(typescript@5.5.4))':
     dependencies:
@@ -4976,8 +4953,6 @@ snapshots:
     dependencies:
       side-channel: 1.1.0
 
-  querystringify@2.2.0: {}
-
   queue-microtask@1.2.3: {}
 
   range-parser@1.2.1: {}
@@ -5032,8 +5007,6 @@ snapshots:
       set-function-name: 2.0.2
 
   require-from-string@2.0.2: {}
-
-  requires-port@1.0.0: {}
 
   resolve-from@4.0.0: {}
 
@@ -5484,11 +5457,6 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
-  url-parse@1.5.10:
-    dependencies:
-      querystringify: 2.2.0
-      requires-port: 1.0.0
 
   util-deprecate@1.0.2: {}
 

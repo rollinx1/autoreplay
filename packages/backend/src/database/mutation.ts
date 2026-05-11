@@ -1,9 +1,9 @@
-import { getProjectId } from "@caido-utils/backend-sdk";
 import type { SDK } from "caido:plugin";
 import type { Database, Parameter } from "sqlite";
 
 import { BackendEvent, type PluginEvents, type ScanResult } from "../types";
 
+import { getProjectId } from "./helpers";
 import type {
   InsertCheckInput,
   InsertScanResultInput,
