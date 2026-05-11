@@ -1,0 +1,28 @@
+{
+  "name": "frontend",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.29.2",
+    "@caido-utils/ui-components": "0.1.6",
+    "@caido/primevue": "0.1.2",
+    "@codemirror/autocomplete": "^6.20.1",
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@uiw/codemirror-theme-vscode": "^4.25.9",
+    "codemirror": "^6.0.2",
+    "highlight.js": "^11.11.1",
+    "pinia": "^3.0.4",
+    "primevue": "4.1.0",
+    "vue": "3.4.37"
+  },
+  "devDependencies": {
+    "@caido/sdk-backend": "^0.46.0",
+    "@caido/sdk-frontend": "^0.46.0",
+    "@codemirror/view": "6.28.1",
+    "backend": "workspace:*",
+    "vue-tsc": "2.0.29"
+  }
+}
