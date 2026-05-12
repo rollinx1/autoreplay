@@ -10,8 +10,8 @@ const checkStore = useCheckStore();
 const { launchScan } = useScan();
 
 const sessionId = computed(() => sessionStore.selectedSessionId);
-const selectedCount = computed(
-  () => sessionStore.currentSessionSetup.selectedIds.length,
+const requestCount = computed(
+  () => sessionStore.currentSessionSetup.requests.length,
 );
 const sessionCheckIds = computed(() => sessionStore.currentSessionChecks);
 const activeCheckCount = computed(() => sessionCheckIds.value.length);
@@ -21,7 +21,7 @@ const isScanning = computed(
 );
 const canLaunch = computed(
   () =>
-    selectedCount.value > 0 && activeCheckCount.value > 0 && !isScanning.value,
+    requestCount.value > 0 && activeCheckCount.value > 0 && !isScanning.value,
 );
 
 const onLaunch = async () => {
@@ -29,7 +29,7 @@ const onLaunch = async () => {
   const id = sessionId.value;
   if (id === undefined) return;
 
-  const requestIds = sessionStore.currentSessionSetup.selectedIds;
+  const requestIds = sessionStore.currentSessionSetup.requests.map((r) => r.id);
   const checks = checkStore.checks.filter((c) =>
     sessionCheckIds.value.includes(c.id),
   );

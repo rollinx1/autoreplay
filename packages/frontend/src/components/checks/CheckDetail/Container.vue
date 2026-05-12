@@ -2,35 +2,53 @@
 import { Card } from "@caido-utils/ui-components";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
-import { ref, watch } from "vue";
+import { computed } from "vue";
 
 import CodeEditor from "./CodeEditor.vue";
 
 import { useChecks } from "@/composables/useChecks";
 import { useDialog } from "@/composables/useDialog";
-import type { CheckRule } from "@/types";
+import { useCheckStore } from "@/stores";
 
-const model = defineModel<CheckRule>();
 const checksApi = useChecks();
+const checkStore = useCheckStore();
 const { openDeleteCheck, openGuide } = useDialog();
 
-const editCode = ref("");
-const editName = ref("");
-const editDescription = ref("");
+const model = computed(() => checkStore.selectedCheck);
 
-const resetFields = () => {
-  if (!model.value) return;
-  editName.value = model.value.name;
-  editDescription.value = model.value.description;
-  editCode.value = model.value.code;
-};
+const draft = computed(() => {
+  if (!model.value) return undefined;
+  return checkStore.drafts[model.value.id];
+});
 
-watch(() => model.value, resetFields, { immediate: true });
+const editName = computed({
+  get: () => draft.value?.name ?? model.value?.name ?? "",
+  set: (v) => {
+    if (!model.value) return;
+    checkStore.setDraft(model.value.id, { name: v });
+  },
+});
+
+const editDescription = computed({
+  get: () => draft.value?.description ?? model.value?.description ?? "",
+  set: (v) => {
+    if (!model.value) return;
+    checkStore.setDraft(model.value.id, { description: v });
+  },
+});
+
+const editCode = computed({
+  get: () => draft.value?.code ?? model.value?.code ?? "",
+  set: (v) => {
+    if (!model.value) return;
+    checkStore.setDraft(model.value.id, { code: v });
+  },
+});
 
 const saveEdit = async () => {
   if (!model.value) return;
 
-  const updates: Partial<CheckRule> = {
+  const updates = {
     name: editName.value || model.value.name,
     description: editDescription.value,
     code: editCode.value,
@@ -38,7 +56,8 @@ const saveEdit = async () => {
 
   const updated = await checksApi.updateCheck(model.value.id, updates);
   if (updated !== undefined) {
-    model.value = updated;
+    checkStore.updateCheck(updated);
+    checkStore.clearDraft(model.value.id);
   }
 };
 

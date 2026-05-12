@@ -24,6 +24,7 @@ export function useTable() {
   const displayItems = computed(() => {
     return items.value.map((r) => ({
       id: r.id,
+      modifiedRequestId: r.modifiedRequestId,
       checkName: r.checkName,
       method: r.method,
       host: r.host,
@@ -39,6 +40,12 @@ export function useTable() {
   });
 
   const columns = [
+    {
+      field: "modifiedRequestId",
+      header: "ID",
+      sortable: true,
+      width: "120px",
+    },
     { field: "checkName", header: "Check", sortable: true, width: "120px" },
     { field: "method", header: "Method", sortable: true, width: "70px" },
     { field: "host", header: "Host", sortable: true, width: "140px" },

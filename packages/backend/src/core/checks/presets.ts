@@ -18,3 +18,33 @@ if (request.method === "POST" && request.body !== undefined) {
   }
 }`,
 };
+
+// export const massAssignmentCheck: CheckPreset = {
+//   name: "Mass Assignment",
+//   description:
+//     "Extracts keys from the JSON response body and attempts to set each one in the request body (POST/PUT/PATCH)",
+//   code: `if (["POST", "PUT", "PATCH"].includes(request.method)) {
+//   if (response !== undefined && response.body !== undefined) {
+//     let json;
+//     try {
+//       json = JSON.parse(response.body);
+//     } catch {
+//       return;
+//     }
+//
+//     if (
+//       typeof json === "object" &&
+//       json !== null &&
+//       !Array.isArray(json)
+//     ) {
+//       if (request.body !== undefined) {
+//         for (const key of Object.keys(json)) {
+//           request.body.set(key, "mass_assignment_test");
+//           await send(request);
+//           request.body.remove(key);
+//         }
+//       }
+//     }
+//   }
+// }`,
+// };

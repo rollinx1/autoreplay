@@ -5,6 +5,7 @@ import { onMounted, ref } from "vue";
 
 import Checks from "./Checks.vue";
 import Dashboard from "./Dashboard.vue";
+import Guide from "./Guide.vue";
 import Settings from "./Settings.vue";
 
 import DialogManager from "@/components/dialogs/DialogManager.vue";
@@ -13,7 +14,7 @@ import { useEvents } from "@/composables/useEvents";
 import { useSession } from "@/composables/useSession";
 import { useSDK } from "@/plugins/sdk";
 
-type ActiveTab = "scanner" | "checks" | "settings";
+type ActiveTab = "scanner" | "checks" | "guide" | "settings";
 
 const sdk = useSDK();
 const session = useSession();
@@ -34,6 +35,13 @@ const items = [
     isActive: () => activeTab.value === "checks",
     command: () => {
       activeTab.value = "checks";
+    },
+  },
+  {
+    label: "Guide",
+    isActive: () => activeTab.value === "guide",
+    command: () => {
+      activeTab.value = "guide";
     },
   },
   {
@@ -80,6 +88,7 @@ onMounted(() => {
     <div class="flex-1 min-h-0 overflow-hidden">
       <Dashboard v-if="activeTab === 'scanner'" />
       <Checks v-else-if="activeTab === 'checks'" />
+      <Guide v-else-if="activeTab === 'guide'" />
       <Settings v-else-if="activeTab === 'settings'" />
     </div>
 

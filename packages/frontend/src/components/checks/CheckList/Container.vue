@@ -5,10 +5,11 @@ import InputText from "primevue/inputtext";
 import { computed, ref } from "vue";
 
 import { useChecks } from "@/composables/useChecks";
+import { useCheckStore } from "@/stores";
 import type { CheckRule } from "@/types";
 
 const { checks, createDefaultCheck } = useChecks();
-const selected = defineModel<CheckRule | undefined>();
+const checkStore = useCheckStore();
 
 const search = ref("");
 
@@ -29,13 +30,13 @@ const filtered = computed(() => {
 });
 
 const select = (m: CheckRule) => {
-  selected.value = m;
+  checkStore.selectCheck(m.id);
 };
 
 const createCheck = async () => {
   const check = await createDefaultCheck();
   if (check !== undefined) {
-    selected.value = check;
+    checkStore.selectCheck(check.id);
   }
 };
 </script>
@@ -76,7 +77,7 @@ const createCheck = async () => {
             :key="m.id"
             class="flex items-start gap-3 px-3 py-2.5 cursor-pointer"
             :class="{
-              'bg-surface-700': selected?.id === m.id,
+              'bg-surface-700': checkStore.selectedCheckId === m.id,
             }"
             @click="select(m)"
           >

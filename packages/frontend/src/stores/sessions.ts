@@ -6,7 +6,6 @@ import type { HttpRequest, ScanResult, ScanState, Session } from "@/types";
 type SessionSetup = {
   filter: string;
   requests: HttpRequest[];
-  selectedIds: string[];
   activeId: string | undefined;
   threads: number;
   delayMs: number;
@@ -20,7 +19,6 @@ type SessionSetup = {
 const defaultSetup = (): SessionSetup => ({
   filter: "",
   requests: [],
-  selectedIds: [],
   activeId: undefined,
   threads: 5,
   delayMs: 0,
@@ -187,7 +185,6 @@ export const useSessionStore = defineStore("session", () => {
         ...current,
         filter: "",
         requests: [],
-        selectedIds: [],
         activeId: undefined,
         threads: 5,
         delayMs: 0,

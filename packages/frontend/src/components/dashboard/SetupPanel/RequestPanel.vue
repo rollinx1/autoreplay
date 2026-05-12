@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {
   Card,
+  DataTable,
   HttpqlInput,
-  MultiDataTable,
   RequestEditor,
 } from "@caido-utils/ui-components";
 import Splitter from "primevue/splitter";
@@ -38,15 +38,6 @@ const fetchedRequests = computed({
   },
 });
 
-const selectedIds = computed({
-  get: () => sessionStore.currentSessionSetup.selectedIds,
-  set: (v) => {
-    if (sessionId.value !== undefined) {
-      sessionStore.setSessionSetup(sessionId.value, { selectedIds: v });
-    }
-  },
-});
-
 const activeId = computed({
   get: () => sessionStore.currentSessionSetup.activeId,
   set: (v) => {
@@ -56,22 +47,12 @@ const activeId = computed({
   },
 });
 
-const selectedRows = computed({
-  get: () =>
-    fetchedRequests.value.filter((r) => selectedIds.value.includes(r.id)),
-  set: (v: HttpRequest[]) => {
-    selectedIds.value = v.map((r) => r.id);
-  },
-});
-
 const activeRow = computed({
   get: () => fetchedRequests.value.find((r) => r.id === activeId.value),
   set: (v: HttpRequest | undefined) => {
     activeId.value = v?.id;
   },
 });
-
-const filteredRequests = computed(() => fetchedRequests.value);
 
 watch(
   () => activeRow.value,
@@ -92,7 +73,6 @@ const onSearch = async () => {
   isSearching.value = false;
   if (result.kind === "Ok") {
     fetchedRequests.value = result.value;
-    selectedIds.value = [];
     activeId.value = undefined;
   } else {
     sdk.window.showToast(result.error, { variant: "error" });
@@ -101,6 +81,13 @@ const onSearch = async () => {
 
 const onRowClick = (event: { data: Record<string, unknown> }) => {
   activeRow.value = event.data as HttpRequest;
+};
+
+const onDeleteRow = (row: HttpRequest) => {
+  fetchedRequests.value = fetchedRequests.value.filter((r) => r.id !== row.id);
+  if (activeId.value === row.id) {
+    activeId.value = undefined;
+  }
 };
 </script>
 
@@ -136,38 +123,30 @@ const onRowClick = (event: { data: Record<string, unknown> }) => {
             </div>
 
             <div class="flex-1 min-h-0 flex flex-col">
-              <MultiDataTable
-                v-model="selectedRows"
-                :items="filteredRequests"
+              <DataTable
+                v-model:active-row="activeRow"
+                :items="fetchedRequests"
                 :columns="[
                   { field: 'method', header: 'Method', width: '80px' },
                   { field: 'host', header: 'Host', width: '250px' },
                   { field: 'path', header: 'Path', width: '300px' },
                   { field: 'query', header: 'Query', width: '200px' },
+                  { field: 'actions', header: '', width: '50px' },
                 ]"
                 data-key="id"
                 scroll-key="requests-table"
+                :row-height="30"
                 class="h-full"
                 :loading="isSearching"
                 @row-click="onRowClick"
               >
-                <template #cell-method="{ item }">
-                  <span
-                    class="px-2 py-0.5 rounded text-xs font-semibold"
-                    :class="
-                      item.method === 'GET'
-                        ? 'bg-green-900/50 text-green-300'
-                        : item.method === 'POST'
-                          ? 'bg-yellow-900/50 text-yellow-300'
-                          : item.method === 'PUT'
-                            ? 'bg-blue-900/50 text-blue-300'
-                            : item.method === 'DELETE'
-                              ? 'bg-red-900/50 text-red-300'
-                              : 'bg-surface-700 text-surface-300'
-                    "
+                <template #cell-actions="{ item }">
+                  <button
+                    class="text-red-400 hover:text-red-300 transition-colors text-xs leading-none pl-2"
+                    @click.stop="onDeleteRow(item)"
                   >
-                    {{ item.method }}
-                  </span>
+                    <i class="fas fa-trash" />
+                  </button>
                 </template>
                 <template #empty>
                   <div
@@ -177,7 +156,7 @@ const onRowClick = (event: { data: Record<string, unknown> }) => {
                     <p>No requests match this filter</p>
                   </div>
                 </template>
-              </MultiDataTable>
+              </DataTable>
             </div>
           </div>
         </template>

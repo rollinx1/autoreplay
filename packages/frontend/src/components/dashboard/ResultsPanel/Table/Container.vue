@@ -86,6 +86,15 @@ const onRowClick = (event: { data: Record<string, unknown> }) => {
             :row-height="30"
             @row-click="onRowClick"
           >
+            <template #cell-modifiedRequestId="{ item }">
+              <span
+                class="text-xs text-surface-400 truncate block"
+                :title="item.modifiedRequestId"
+              >
+                {{ item.modifiedRequestId || "—" }}
+              </span>
+            </template>
+
             <template #cell-method="{ item }">
               <span class="text-xs">
                 {{ item.method }}
