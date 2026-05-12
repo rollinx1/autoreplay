@@ -42,8 +42,8 @@ importers:
   packages/backend:
     dependencies:
       '@caido-utils/parser':
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.5.3
+        version: 0.5.3
       sqlite:
         specifier: ^5.1.1
         version: 5.1.1
@@ -58,8 +58,8 @@ importers:
         specifier: ^7.29.2
         version: 7.29.2
       '@caido-utils/ui-components':
-        specifier: 0.1.6
-        version: 0.1.6(@caido/sdk-frontend@0.46.0(@codemirror/view@6.28.1))(@codemirror/view@6.28.1)(primevue@4.1.0(vue@3.4.37(typescript@5.5.4)))(vue@3.4.37(typescript@5.5.4))
+        specifier: 0.1.7
+        version: 0.1.7(@caido/sdk-frontend@0.46.0(@codemirror/view@6.28.1))(@codemirror/view@6.28.1)(primevue@4.1.0(vue@3.4.37(typescript@5.5.4)))(vue@3.4.37(typescript@5.5.4))
       '@caido/primevue':
         specifier: 0.1.2
         version: 0.1.2
@@ -144,11 +144,11 @@ packages:
       primevue: '>=4.0.0'
       vue: '>=3.4.0'
 
-  '@caido-utils/parser@0.5.2':
-    resolution: {integrity: sha512-pEMl+jTrHj5755LPkawXEaQIufpmLaaCxRqzuWNvhN2pUzYdWpP6YySL72fscdfbgzwuVQ7YHjrfZfu31wD4xQ==}
+  '@caido-utils/parser@0.5.3':
+    resolution: {integrity: sha512-+3VxnJ69El2Wd7OIsY0PPNS+xoNK8hl1z5rAIRjpVcEecs77GNOEgiPkkEzBKIkPI0H/cs3mSaL9ogJhLKvo2g==}
 
-  '@caido-utils/ui-components@0.1.6':
-    resolution: {integrity: sha512-LzdrHmutvF6QIpjDC0Qg1UfT83qrHIHBhMwZsVLC1B7nx5Q2GKFLWrbiExWW4kuD8ma6ktSOii/HYiw2zygwuQ==}
+  '@caido-utils/ui-components@0.1.7':
+    resolution: {integrity: sha512-OBL/ZPaH4myL+guKyWxgq5kqLxwBlUefE6i3sMHXrjPU18CbGVqYj3U9mZOmBtrAcwBfc04ShRtaHMxB46QRbA==}
     peerDependencies:
       '@caido/sdk-frontend': '>=0.54.0'
       primevue: '>=4.0.0'
@@ -2779,11 +2779,11 @@ snapshots:
       primevue: 4.1.0(vue@3.4.37(typescript@5.5.4))
       vue: 3.4.37(typescript@5.5.4)
 
-  '@caido-utils/parser@0.5.2':
+  '@caido-utils/parser@0.5.3':
     dependencies:
       dot-prop: 9.0.0
 
-  '@caido-utils/ui-components@0.1.6(@caido/sdk-frontend@0.46.0(@codemirror/view@6.28.1))(@codemirror/view@6.28.1)(primevue@4.1.0(vue@3.4.37(typescript@5.5.4)))(vue@3.4.37(typescript@5.5.4))':
+  '@caido-utils/ui-components@0.1.7(@caido/sdk-frontend@0.46.0(@codemirror/view@6.28.1))(@codemirror/view@6.28.1)(primevue@4.1.0(vue@3.4.37(typescript@5.5.4)))(vue@3.4.37(typescript@5.5.4))':
     dependencies:
       '@caido-utils/frontend-sdk': 0.1.0(@caido/sdk-frontend@0.46.0(@codemirror/view@6.28.1))(@codemirror/view@6.28.1)(primevue@4.1.0(vue@3.4.37(typescript@5.5.4)))(vue@3.4.37(typescript@5.5.4))
       '@caido/sdk-frontend': 0.46.0(@codemirror/view@6.28.1)

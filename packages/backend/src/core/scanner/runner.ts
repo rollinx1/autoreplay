@@ -37,9 +37,17 @@ export const runScan = async (
     }
 
     // eslint-disable-next-line compat/compat
-    await Promise.all(promises);
+    await Promise.allSettled(promises);
 
-    await pool.waitUntilIdle();
+    const idleTimeoutMs = 60_000;
+    // eslint-disable-next-line compat/compat
+    await Promise.race([
+      pool.waitUntilIdle(),
+      // eslint-disable-next-line compat/compat
+      new Promise<void>((_, reject) => {
+        setTimeout(() => reject(new Error("Pool idle timeout")), idleTimeoutMs);
+      }),
+    ]);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     sdk.console.log(`Scan error: ${message}`);

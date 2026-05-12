@@ -22,16 +22,16 @@ packages/backend/src/
 │   └── settings.ts   ← typed wrappers: get/save/delete Discord webhooks, callback configs, payload files, payload lists, constants
 ├── core/
 │   ├── checks/
-│   │   ├── presets.ts  ← built-in check templates (HTTP Methods, Parser Test)
+│   │   ├── presets.ts  ← built-in check templates (HTTP Methods, Reflected XSS, Secondary Context Path Traversal)
 │   │   ├── seed.ts     ← seedChecks: inserts presets on init if missing
 │   │   └── index.ts    ← barrel exports
 │   ├── runtime/
-│   │   ├── ctx.ts      ← createContext: builds ctx with send (fire-and-forget), notify (identifier-based Discord lookup), callback, utils
+│   │   ├── ctx.ts      ← createContext: builds ctx with send (fire-and-forget), notify (identifier-based Discord lookup), callback, list (payload list lookup), utils
 │   │   ├── request.ts  ← createRequestProxy: takes raw Caido Request, builds RequestParser internally, proxy with id, url, host, capturedAt, raw
-│   │   ├── response.ts ← createResponseProxy: takes Caido Response, uses ResponseParser for headers, provides statusCode, duration, headers, body
+│   │   ├── response.ts ← createResponseProxy: takes raw Caido Response, uses ResponseParser for headers, provides statusCode, duration, headers, body
 │   │   ├── notify.ts   ← Discord webhook delivery via caido:http fetch + Blob (embed format)
 │   │   ├── callback.ts ← placeholder for callback URL spawning
-│   │   └── utils.ts    ← urlEncode, urlDecode helpers
+│   │   └── utils.ts    ← urlEncode, urlDecode, random helpers
 │   └── scanner/
 │       ├── runner.ts       ← runScan: creates RequestPool, passes raw Caido RequestResponseOpt to executor, tracks active pools by sessionId
 │       ├── executor.ts     ← executeCheck: extracts fields from Caido Request, builds proxies, wraps check code in async IIFE
@@ -42,6 +42,7 @@ packages/backend/src/
 │   ├── types.ts      ← InsertSessionInput, UpdateSessionInput, InsertCheckInput, UpdateCheckInput, InsertScanResultInput, Setting, UpsertSettingInput
 │   ├── query.ts      ← getSession, getSessions, getChecks, getCheck, getScanResults, getSettings, getSetting
 │   ├── mutation.ts   ← insertSession, updateSession, deleteSession, insertCheck, updateCheck, deleteCheck, insertScanResult (emits ScanResultCreated), upsertSetting, deleteSetting
+│   ├── helpers.ts    ← getProjectId: wraps sdk.projects.getCurrent() for project scoping
 │   └── index.ts      ← barrel exports
 ├── types.ts          ← shared domain types + Result<T>
 └── index.ts          ← ONLY exports API type + init() wiring (no business logic)
@@ -65,7 +66,11 @@ packages/frontend/src/
 ├── components/
 │   ├── dashboard/
 │   │   ├── SetupPanel/
-│   │   │   └── Container.vue   ← Card-based layout: header (session name + Launch), requests table, preview editor, checks/settings tabs. Sends threads/delay/timeout options to executeScan.
+│   │   │   ├── Container.vue   ← layout shell: outer splitter + tab switching
+│   │   │   ├── SetupHeader.vue ← session name + Launch button
+│   │   │   ├── RequestPanel.vue← vertical splitter: requests table + preview editor
+│   │   │   ├── ChecksTab.vue   ← check selection list
+│   │   │   └── SettingsTab.vue ← threads/delay/timeout inputs
 │   │   ├── ResultsPanel/
 │   │   │   ├── Container.vue   ← splitter: Table (top) + Editors (bottom)
 │   │   │   ├── Table/
@@ -202,17 +207,18 @@ pnpm knip
 - A `ScanResult` has: `id` (number, DB auto-increment), `originalRequestId`, `checkId`, `checkName`, `method`, `host`, `path`, `query`, `modifiedRequestId`, `statusCode`, `size`, `duration`, `timestamp`.
     - All fields except `originalRequestId` describe the modified/replayed request.
     - `size` is the response body length (computed at scan time).
-- A `CheckRule` has: `id`, `name`, `description`, `code`.
-    - All checks are programmable JavaScript. The script receives `request` (a Parser proxy with `.send()`), `response` (the original HTTP response or `undefined`), `send`, `notify`, `callback`, and `utils`.
+- A `CheckRule` has: `id` (number), `name`, `description`, `code`.
+    - All checks are programmable JavaScript. The script receives `request` (a Parser proxy with `.send()`), `response` (the original HTTP response or `undefined`), `send`, `notify`, `callback`, `list`, and `utils`.
     - Use `request.method = "POST"`, `request.query.set("key", "value")`, then `await send(request)` to fire variations.
     - `notify.discord(identifier)` looks up the webhook URL from saved Discord settings by identifier and returns a notification handle with `.message(text)` to send.
+    - `list(identifier)` looks up a saved payload list by identifier and returns `string[]`.
     - The old simple type/target/value format and the `enabled` field have been removed entirely.
 - A `Session` has: `id` (number), `name`, `status` ("setup" | "results"), `requests`, `createdAt`. Sessions start in `"setup"`; after launching a scan they transition to `"results"` immediately so the ResultsPanel renders while scanning continues in the background.
 - `ScanState` = `"idle" | "running" | "paused" | "stopped"`. Tracked per-session in the frontend store.
 - Backend emits `BackendEvent.ScanResultCreated` after each check/request pair completes (from inside `insertScanResult`). Frontend filters incoming events by matching `sessionId` against the currently selected session before adding to the store.
 - Backend emits `BackendEvent.ScanComplete` when the scan finishes (queue empty and pool idle). Frontend sets `scanState` to `"idle"` and shows the "Scan complete" toast.
 - Pinia stores: `sessions.ts` holds sessions (id: number), selection, per-session setup state, scan results, and `scanState`; `checks.ts` holds check rules; `settings.ts` holds arrays of Discord webhooks, callback configs, payload files, payload lists, and constants; `ui.ts` holds dialog state.
-- Check selection is per-session only (`sessionCheckIds: Record<number, string[]>`) — there is no global "active" state on checks.
+- Check selection is per-session only (`sessionCheckIds: Record<number, number[]>`) — there is no global "active" state on checks.
 - Dialog system: `useDialog()` provides typed openers. `DialogManager` renders the active dialog based on `uiStore.mainView`. Dialogs use PrimeVue `<Dialog>` with `:visible="true"` and custom header close buttons.
 - Settings are stored in a `settings` table with `type`, `identifier`, `data` (JSON string), scoped per project. Typed wrappers exist for `discord`, `callback`, `file`, `list`, and `constant` types.
 - Request sending is managed by a `RequestPool` in the scanner with configurable concurrency, delay between requests, pause/resume/stop, and timeout.
@@ -220,11 +226,14 @@ pnpm knip
     - `executeScan` takes an `options` object: `{ threads: number; delayMs: number; timeoutSec: number }`.
     - `pauseScan`, `resumeScan`, `stopScan` operate on the active pool tracked by `sessionId`.
     - Active pools are stored in a Map keyed by `sessionId` in `runner.ts`.
+    - `executor.ts` enforces a 120s per-check timeout so a hung check can't block the entire scan.
+    - `runner.ts` uses `Promise.allSettled` (not `Promise.all`) and a 60s idle timeout so `finally` always cleans up the pool and emits `ScanComplete`.
 - Duration is captured from `response.getRoundtripTime()` and stored in each `ScanResult`.
+- `getSetupRequests` supports optional deduplication (`deduplicate = false`) that groups by `method|host|path|query|cookie` using `RequestParser` to keep only the first request per unique fingerprint.
 
 ## CI / release
 - `validate.yml` runs `typecheck`, `lint`, and `knip` in parallel on push to `main`.
-- `release.yml` only runs on the `main` branch via `workflow_dispatch`. It builds, optionally signs the artifact with an ed25519 key, and creates a GitHub release using the version from `dist/plugin_package.zip` manifest.
+- `release.yml` runs on every push to `main`. It builds, optionally signs the artifact with an ed25519 key, and creates a GitHub release using the version from `dist/plugin_package.zip` manifest.
 
 ## Agent behavior
 - **Never run `git status` or any git commands.** This workspace is not using git; if git is present, do not interact with it.

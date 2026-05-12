@@ -24,5 +24,5 @@ export function createRequestProxy(caidoReq: Request): RequestProxy {
       const val = (target as unknown as Record<string | symbol, unknown>)[prop];
       return typeof val === "function" ? val.bind(target) : val;
     },
-  }) as RequestProxy;
+  }) as unknown as RequestProxy;
 }

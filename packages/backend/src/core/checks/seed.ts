@@ -2,9 +2,9 @@ import type { SDK } from "caido:plugin";
 
 import { getChecks as getChecksDb, insertCheck } from "../../database";
 
-import { httpMethodsCheck, xssCheck } from "./presets";
+import { bxssCheck } from "./presets";
 
-const PRESETS = [httpMethodsCheck, xssCheck];
+const PRESETS = [bxssCheck];
 
 export async function seedChecks(sdk: SDK): Promise<void> {
   const existing = await getChecksDb(sdk);

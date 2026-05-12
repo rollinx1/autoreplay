@@ -50,7 +50,7 @@ export const executeCheck = async (
     return;
   }
 
-  try {
+  const checkPromise = (async () => {
     await fn(
       requestProxy,
       responseProxy,
@@ -62,9 +62,29 @@ export const executeCheck = async (
       utils.random,
       list,
     );
+  })();
+
+  const timeoutMs = 120_000;
+  // eslint-disable-next-line compat/compat
+  const timeoutPromise = new Promise<void>((_, reject) => {
+    const timer = setTimeout(
+      () =>
+        reject(
+          new Error(`Check "${check.name}" timed out after ${timeoutMs}ms`),
+        ),
+      timeoutMs,
+    );
+    checkPromise
+      .then(() => clearTimeout(timer))
+      .catch(() => clearTimeout(timer));
+  });
+
+  try {
+    // eslint-disable-next-line compat/compat
+    await Promise.race([checkPromise, timeoutPromise]);
   } catch (err) {
     sdk.console.log(
-      `Check runtime error: ${err instanceof Error ? (err.stack ?? err.message) : String(err)}`,
+      `Check error: ${err instanceof Error ? (err.stack ?? err.message) : String(err)}`,
     );
   }
 };

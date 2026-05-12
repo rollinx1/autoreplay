@@ -7,7 +7,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@caido-utils/parser": "^0.5.2",
+    "@caido-utils/parser": "^0.5.3",
     "sqlite": "^5.1.1"
   },
   "devDependencies": {
