@@ -5,6 +5,8 @@ import { getSetting } from "../../database/query";
 import { type CheckRule, type PluginEvents } from "../../types";
 import { type SendRequestResult } from "../scanner/http";
 
+import { decode } from "./decode";
+import { encode } from "./encode";
 import { notifyDiscord } from "./notify";
 import { type RequestProxy } from "./request";
 import { utils } from "./utils";
@@ -24,6 +26,8 @@ export type RuntimeContext = {
   };
   list: (identifier: string) => Promise<string[]>;
   utils: typeof utils;
+  encode: typeof encode;
+  decode: typeof decode;
 };
 
 export function createContext(
@@ -111,5 +115,7 @@ export function createContext(
       return parsed.items;
     },
     utils,
+    encode,
+    decode,
   };
 }

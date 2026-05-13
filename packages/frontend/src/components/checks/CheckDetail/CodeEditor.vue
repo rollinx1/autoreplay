@@ -61,7 +61,7 @@ const getExtensions = () => {
               {
                 label: "body",
                 type: "property",
-                info: "BodyParser | undefined",
+                info: "BodyProxy | undefined",
               },
               { label: "build", type: "method", info: "() => string" },
             );
@@ -73,7 +73,7 @@ const getExtensions = () => {
               {
                 label: "body",
                 type: "property",
-                info: "string | undefined (lazy)",
+                info: "BodyProxy | undefined",
               },
             );
           } else if (prefix === "send") {
@@ -98,19 +98,23 @@ const getExtensions = () => {
             options.push(
               { label: "segments", type: "property", info: "string[]" },
               {
+                label: "items",
+                type: "property",
+                info: "{ name: string; value: string }[]",
+              },
+              {
                 label: "has",
                 type: "method",
                 info: "(index: number) => boolean",
               },
-              { label: "set", type: "method", info: "(path: string) => void" },
-              {
-                label: "replace",
-                type: "method",
-                info: "(search: string, replacement: string) => void",
-              },
             );
           } else if (prefix === "query") {
             options.push(
+              {
+                label: "items",
+                type: "property",
+                info: "{ name: string; value: string }[]",
+              },
               {
                 label: "get",
                 type: "method",
@@ -130,16 +134,6 @@ const getExtensions = () => {
                 label: "remove",
                 type: "method",
                 info: "(name: string) => void",
-              },
-              {
-                label: "replace",
-                type: "method",
-                info: "(search: string, replacement: string) => void",
-              },
-              {
-                label: "setByPattern",
-                type: "method",
-                info: "(pattern: RegExp, value: string) => void",
               },
             );
           } else if (prefix === "headers") {
@@ -170,15 +164,15 @@ const getExtensions = () => {
                 type: "method",
                 info: "(name: string) => void",
               },
-              {
-                label: "replace",
-                type: "method",
-                info: "(search: string, replacement: string) => void",
-              },
             );
           } else if (prefix === "cookies") {
             options.push(
               {
+                label: "items",
+                type: "property",
+                info: "{ name: string; value: string }[]",
+              },
+              {
                 label: "get",
                 type: "method",
                 info: "(name: string) => string | undefined",
@@ -198,19 +192,19 @@ const getExtensions = () => {
                 type: "method",
                 info: "(name: string) => void",
               },
-              {
-                label: "replace",
-                type: "method",
-                info: "(search: string, replacement: string) => void",
-              },
-              { label: "isEmpty", type: "method", info: "() => boolean" },
             );
           } else if (prefix === "body") {
             options.push(
+              { label: "type", type: "property", info: "string | undefined" },
+              {
+                label: "items",
+                type: "property",
+                info: "{ name: string; value: unknown }[]",
+              },
               {
                 label: "get",
                 type: "method",
-                info: "(name: string) => string | undefined",
+                info: "(name: string) => unknown",
               },
               {
                 label: "has",
@@ -220,27 +214,12 @@ const getExtensions = () => {
               {
                 label: "set",
                 type: "method",
-                info: "(name: string, value: string) => void",
+                info: "(name: string, value: unknown) => void",
               },
               {
                 label: "remove",
                 type: "method",
                 info: "(name: string) => void",
-              },
-              {
-                label: "replace",
-                type: "method",
-                info: "(search: string, replacement: string) => void",
-              },
-              {
-                label: "setByPattern",
-                type: "method",
-                info: "(pattern: RegExp, value: string) => void",
-              },
-              {
-                label: "isValid",
-                type: "method",
-                info: "() => boolean (JSON only)",
               },
               {
                 label: "rawParts",
@@ -299,6 +278,16 @@ const getExtensions = () => {
             label: "random",
             type: "function",
             info: "(length?: number) => string — defaults to 8",
+          },
+          {
+            label: "encode",
+            type: "function",
+            info: "(input: string, method: string, options?) => string",
+          },
+          {
+            label: "decode",
+            type: "function",
+            info: "(input: string, method: string, options?) => string",
           },
         ];
 

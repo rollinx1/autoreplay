@@ -42,8 +42,8 @@ importers:
   packages/backend:
     dependencies:
       '@caido-utils/parser':
-        specifier: ^0.5.3
-        version: 0.5.3
+        specifier: ^0.6.1
+        version: 0.6.1
       sqlite:
         specifier: ^5.1.1
         version: 5.1.1
@@ -144,8 +144,8 @@ packages:
       primevue: '>=4.0.0'
       vue: '>=3.4.0'
 
-  '@caido-utils/parser@0.5.3':
-    resolution: {integrity: sha512-+3VxnJ69El2Wd7OIsY0PPNS+xoNK8hl1z5rAIRjpVcEecs77GNOEgiPkkEzBKIkPI0H/cs3mSaL9ogJhLKvo2g==}
+  '@caido-utils/parser@0.6.1':
+    resolution: {integrity: sha512-zP9nydSFc6M27bUz+QBhdo1vVsYnL/AVNtiztQrAQ0nXkYJXZGRykO4Z0XHcl5N3aTILGuWHN2P11biCve+AxQ==}
 
   '@caido-utils/ui-components@0.1.7':
     resolution: {integrity: sha512-OBL/ZPaH4myL+guKyWxgq5kqLxwBlUefE6i3sMHXrjPU18CbGVqYj3U9mZOmBtrAcwBfc04ShRtaHMxB46QRbA==}
@@ -2779,7 +2779,7 @@ snapshots:
       primevue: 4.1.0(vue@3.4.37(typescript@5.5.4))
       vue: 3.4.37(typescript@5.5.4)
 
-  '@caido-utils/parser@0.5.3':
+  '@caido-utils/parser@0.6.1':
     dependencies:
       dot-prop: 9.0.0
 

@@ -1,5 +1,5 @@
 import type { SDK } from "caido:plugin";
-import { RequestSpecRaw } from "caido:utils";
+import { type RequestSpec, RequestSpecRaw } from "caido:utils";
 
 export type SendRequestResult = {
   statusCode: number;
@@ -15,8 +15,15 @@ export const sendHttpRequest = async (
   timeoutMs?: number,
 ): Promise<SendRequestResult> => {
   try {
-    const spec = new RequestSpecRaw(`https://${host}`);
-    spec.setRaw(raw);
+    const specRaw = new RequestSpecRaw(`https://${host}`);
+    specRaw.setRaw(raw);
+
+    let spec: RequestSpec | RequestSpecRaw;
+    try {
+      spec = specRaw.getSpec();
+    } catch {
+      spec = specRaw;
+    }
 
     const sendPromise = sdk.requests.send(spec);
     let sent;

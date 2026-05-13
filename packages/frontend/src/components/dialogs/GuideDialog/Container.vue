@@ -47,24 +47,10 @@ await send(request);`,
   },
   {
     category: "Path",
-    title: "Set the request path",
-    description: "Replace the entire request path",
-    code: `request.path.set("/new/path");
-await send(request);`,
-  },
-  {
-    category: "Path",
-    title: "Replace in path segments",
-    description: "Replace string occurrences in all path segments",
-    code: `request.path.replace("api", "admin");
-await send(request);`,
-  },
-  {
-    category: "Path",
     title: "Read path segments",
     description: "Access individual path segments by index",
     code: `if (request.path.segments[1] === "users") {
-  request.path.set("/api/admin");
+  request.query.set("admin", "true");
   await send(request);
 }`,
   },
@@ -84,23 +70,9 @@ await send(request);`,
   },
   {
     category: "Query",
-    title: "Replace in query params",
-    description: "Replace string occurrences in all query names and values",
-    code: `request.query.replace("old", "new");
-await send(request);`,
-  },
-  {
-    category: "Query",
-    title: "Set query params by pattern",
-    description: "Set values for all params whose name matches a regex",
-    code: `request.query.setByPattern(/id$/, "123");
-await send(request);`,
-  },
-  {
-    category: "Query",
     title: "Loop through query parameters",
     description: "Iterate and fuzz every existing query parameter",
-    code: `for (const param of request.query) {
+    code: `for (const param of request.query.items) {
   request.query.set(param.name, param.value + "' OR '1'='1");
   await send(request);
   request.query.set(param.name, param.value);
@@ -118,13 +90,6 @@ await send(request);`,
     title: "Remove a header",
     description: "Delete a header by name",
     code: `request.headers.remove("Authorization");
-await send(request);`,
-  },
-  {
-    category: "Headers",
-    title: "Replace in headers",
-    description: "Replace string occurrences in all header names and values",
-    code: `request.headers.replace("localhost", "evil.com");
 await send(request);`,
   },
   {
@@ -163,17 +128,10 @@ await send(request);`,
   },
   {
     category: "Cookies",
-    title: "Replace in cookies",
-    description: "Replace string occurrences in all cookie names and values",
-    code: `request.cookies.replace("old", "new");
-await send(request);`,
-  },
-  {
-    category: "Cookies",
     title: "Loop through cookies",
     description: "Iterate and fuzz every existing cookie",
-    code: `if (!request.cookies.isEmpty()) {
-  for (const cookie of request.cookies) {
+    code: `if (request.cookies.items.length > 0) {
+  for (const cookie of request.cookies.items) {
     request.cookies.set(cookie.name, cookie.value + "' OR '1'='1");
     await send(request);
     request.cookies.set(cookie.name, cookie.value);
@@ -200,29 +158,11 @@ await send(request);`,
   },
   {
     category: "Body",
-    title: "Replace in body",
-    description: "Replace string occurrences in all body names and values",
-    code: `if (request.body !== undefined) {
-  request.body.replace("old", "new");
-  await send(request);
-}`,
-  },
-  {
-    category: "Body",
-    title: "Set body fields by pattern",
-    description: "Set values for all fields whose name matches a regex",
-    code: `if (request.body !== undefined) {
-  request.body.setByPattern(/password/, "P@ssw0rd");
-  await send(request);
-}`,
-  },
-  {
-    category: "Body",
     title: "Loop through body fields",
     description: "Iterate and fuzz every existing body field",
     code: `if (request.body !== undefined) {
-  for (const field of request.body) {
-    request.body.set(field.name, field.value + "' OR '1'='1");
+  for (const field of request.body.items) {
+    request.body.set(field.name, String(field.value) + "' OR '1'='1");
     await send(request);
     request.body.set(field.name, field.value);
   }
@@ -230,9 +170,9 @@ await send(request);`,
   },
   {
     category: "Body",
-    title: "Check JSON validity",
-    description: "Test if the JSON body was successfully parsed",
-    code: `if (request.body !== undefined && request.body.isValid && request.body.isValid()) {
+    title: "Check body type",
+    description: "Test if the body is a specific content type",
+    code: `if (request.body !== undefined && request.body.type === "json") {
   request.body.set("role", "admin");
   await send(request);
 }`,
@@ -270,13 +210,15 @@ await send(request);`,
   },
   {
     category: "Response",
-    title: "Read response body",
-    description:
-      "Access original response body (lazy, only reads when accessed)",
+    title: "Loop through response body fields",
+    description: "Iterate all response body fields to find a matching value",
     code: `if (response !== undefined && response.body !== undefined) {
-  if (response.body.includes("admin")) {
-    request.query.set("role", "admin");
-    await send(request);
+  for (const field of response.body.items) {
+    if (typeof field.value === "string" && field.value.includes("admin")) {
+      request.query.set("role", "admin");
+      await send(request);
+      break;
+    }
   }
 }`,
   },
@@ -287,7 +229,7 @@ await send(request);`,
     code: `const payloads = ["admin", "test", "root"];
 
 for (const payload of payloads) {
-  request.path.set("/api/" + payload);
+  request.query.set("user", payload);
   await send(request);
 }`,
   },
@@ -323,6 +265,16 @@ if (hit) {
     description: "Use built-in utility functions",
     code: `const encoded = utils.urlEncode("hello world");
 const decoded = utils.urlDecode("hello%20world");
+
+request.query.set("data", encoded);
+await send(request);`,
+  },
+  {
+    category: "Advanced",
+    title: "Encode / Decode",
+    description: "Encode or decode strings with various methods",
+    code: `const encoded = encode("hello world", "url", { strict: true });
+const decoded = decode("hello%20world", "url", { strict: true });
 
 request.query.set("data", encoded);
 await send(request);`,

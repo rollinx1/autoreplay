@@ -213,6 +213,10 @@ pnpm knip
     - `notify.discord(identifier)` looks up the webhook URL from saved Discord settings by identifier and returns a notification handle with `.message(text)` to send.
     - `list(identifier)` looks up a saved payload list by identifier and returns `string[]`.
     - The old simple type/target/value format and the `enabled` field have been removed entirely.
+- A `ResponseProxy` has: `statusCode`, `duration`, `headers` (with `.get()`, `.has()`, `.raw`), `body` (a `BodyProxy` or `undefined`).
+    - `response.body` exposes the parsed response body with `.items`, `.get(name)`, `.set(name, value)`, `.remove(name)`, and `.type`.
+    - `response.body` is `undefined` for unsupported content types or empty bodies.
+    - `response.body` is lazily parsed — the ResponseParser is only created when accessed.
 - A `Session` has: `id` (number), `name`, `status` ("setup" | "results"), `requests`, `createdAt`. Sessions start in `"setup"`; after launching a scan they transition to `"results"` immediately so the ResultsPanel renders while scanning continues in the background.
 - `ScanState` = `"idle" | "running" | "paused" | "stopped"`. Tracked per-session in the frontend store.
 - Backend emits `BackendEvent.ScanResultCreated` after each check/request pair completes (from inside `insertScanResult`). Frontend filters incoming events by matching `sessionId` against the currently selected session before adding to the store.

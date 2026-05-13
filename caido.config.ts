@@ -14,7 +14,7 @@ export default defineConfig({
   id,
   name: "AutoReplay",
   description: "Programmable scanner to autoreplay requests",
-  version: "0.1.3",
+  version: "0.1.4",
   author: {
     name: "Caido Labs Inc.",
     email: "dev@caido.io",

@@ -18,7 +18,7 @@ export const executeCheck = async (
   const response = rawRequest.response;
   const requestId = request.getId();
 
-  const { send, notify, callback, list, utils } = createContext(
+  const { send, notify, callback, list, utils, encode, decode } = createContext(
     sdk,
     sessionId,
     requestId,
@@ -41,6 +41,8 @@ export const executeCheck = async (
       "urlDecode",
       "random",
       "list",
+      "encode",
+      "decode",
       `return (async () => { ${check.code} })()`,
     ) as (...args: unknown[]) => unknown;
   } catch (err) {
@@ -61,6 +63,8 @@ export const executeCheck = async (
       utils.urlDecode,
       utils.random,
       list,
+      encode,
+      decode,
     );
   })();
 
