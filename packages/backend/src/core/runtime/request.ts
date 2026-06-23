@@ -6,6 +6,8 @@ export type RequestProxy = RequestParser & {
   readonly id: string;
   readonly url: string;
   readonly host: string;
+  readonly port: number;
+  readonly tls: boolean;
   readonly capturedAt: string;
 };
 
@@ -17,6 +19,8 @@ export function createRequestProxy(caidoReq: Request): RequestProxy {
       if (prop === "id") return caidoReq.getId();
       if (prop === "url") return caidoReq.getUrl();
       if (prop === "capturedAt") return caidoReq.getCreatedAt().toISOString();
+      if (prop === "port") return caidoReq.getPort();
+      if (prop === "tls") return caidoReq.getTls();
       if (prop === "host") {
         return target.headers.get("host") ?? caidoReq.getHost();
       }

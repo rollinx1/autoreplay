@@ -7,15 +7,16 @@ type MainView =
   | "delete-check"
   | "guide"
   | "add-webhook"
-  | "add-callback"
   | "add-list"
-  | "add-constant";
+  | "add-constant"
+  | "send-to-autoreplay";
 
 type DialogData = {
   sessionId?: number;
   sessionName?: string;
   checkId?: number;
   checkName?: string;
+  requestIds?: string[];
 };
 
 export const useUIStore = defineStore("ui", () => {

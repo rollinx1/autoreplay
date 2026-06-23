@@ -1,69 +1,54 @@
 import type { SDK } from "caido:plugin";
-import { type RequestSpec, RequestSpecRaw } from "caido:utils";
+import { RequestSpec, RequestSpecRaw, type Response } from "caido:utils";
 
-export type SendRequestResult = {
-  statusCode: number;
-  size: number;
-  requestId?: string;
-  duration: number;
-};
+export type SendRequestResult =
+  | {
+      kind: "Ok";
+      requestId: string;
+      response: Response;
+    }
+  | {
+      kind: "Error";
+      error: string;
+    };
 
 export const sendHttpRequest = async (
   sdk: SDK,
   host: string,
+  port: number,
+  tls: boolean,
   raw: string,
   timeoutMs?: number,
 ): Promise<SendRequestResult> => {
   try {
-    const specRaw = new RequestSpecRaw(`https://${host}`);
-    specRaw.setRaw(raw);
-
     let spec: RequestSpec | RequestSpecRaw;
     try {
-      spec = specRaw.getSpec();
+      spec = RequestSpec.parse(raw);
     } catch {
+      const specRaw = new RequestSpecRaw(`${tls ? "https" : "http"}://${host}`);
+      specRaw.setRaw(raw);
       spec = specRaw;
     }
+    spec.setPort(port);
+    spec.setTls(tls);
 
-    const sendPromise = sdk.requests.send(spec);
-    let sent;
-    if (timeoutMs !== undefined && timeoutMs > 0) {
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(
-          () => reject(new Error(`Request timed out after ${timeoutMs}ms`)),
-          timeoutMs,
-        );
-      });
-
-      sent = await Promise.race([sendPromise, timeoutPromise]);
-    } else {
-      sent = await sendPromise;
-    }
-    const response = sent.response;
-
-    if (response === undefined) {
-      return {
-        statusCode: 0,
-        size: 0,
-        requestId: sent.request?.getId(),
-        duration: 0,
-      };
-    }
-
+    const sent = await sdk.requests.send(
+      spec,
+      timeoutMs !== undefined && timeoutMs > 0
+        ? { timeouts: timeoutMs }
+        : undefined,
+    );
     return {
-      statusCode: response.getCode(),
-      size: response.getBody()?.toRaw().length ?? 0,
-      requestId: sent.request?.getId(),
-      duration: response.getRoundtripTime(),
+      kind: "Ok",
+      requestId: sent.request.getId(),
+      response: sent.response,
     };
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     sdk.console.log(`sendHttpRequest error: ${msg}`);
     return {
-      statusCode: 0,
-      size: 0,
-      requestId: undefined,
-      duration: 0,
+      kind: "Error",
+      error: msg,
     };
   }
 };

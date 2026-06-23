@@ -14,6 +14,14 @@ type SessionSetup = {
   results: ScanResult[];
   selectedResultId: number | undefined;
   scanState: ScanState;
+  deduplicate: boolean;
+  inScope: boolean;
+  noJavascript: boolean;
+  noImages: boolean;
+  noVideos: boolean;
+  noDocuments: boolean;
+  noStyling: boolean;
+  timeFilter: "all" | "recent" | "1hr" | "6hr" | "12hr" | "24hr";
 };
 
 const defaultSetup = (): SessionSetup => ({
@@ -27,6 +35,14 @@ const defaultSetup = (): SessionSetup => ({
   results: [],
   selectedResultId: undefined,
   scanState: "idle",
+  deduplicate: true,
+  inScope: true,
+  noJavascript: true,
+  noImages: true,
+  noVideos: true,
+  noDocuments: true,
+  noStyling: true,
+  timeFilter: "all",
 });
 
 export const useSessionStore = defineStore("session", () => {
@@ -106,9 +122,16 @@ export const useSessionStore = defineStore("session", () => {
     sessionSetup.value = {};
   };
 
-  const selectSession = (id: number | undefined) => {
+  const selectSession = (id: number | undefined, setupFilter?: string) => {
     selectedSessionId.value = id;
     selectedRequestId.value = undefined;
+    if (id !== undefined && setupFilter !== undefined) {
+      const current = sessionSetup.value[id] ?? defaultSetup();
+      sessionSetup.value = {
+        ...sessionSetup.value,
+        [id]: { ...current, filter: setupFilter },
+      };
+    }
   };
 
   const selectRequest = (id: string | undefined) => {
@@ -191,6 +214,14 @@ export const useSessionStore = defineStore("session", () => {
         timeoutSec: 30,
         checkIds: [],
         scanState: "idle",
+        deduplicate: true,
+        inScope: true,
+        noJavascript: true,
+        noImages: true,
+        noVideos: true,
+        noDocuments: true,
+        noStyling: true,
+        timeFilter: "all",
       },
     };
   };

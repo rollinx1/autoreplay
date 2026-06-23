@@ -4,12 +4,9 @@ import { type API } from "backend";
 import type { ScanResult } from "./types/index";
 
 type BackendEvents = {
-  "scan-result-created": (data: {
-    sessionId: number;
-    result: ScanResult;
-  }) => void;
-  "scan-complete": (data: { sessionId: number }) => void;
-  "project-changed": (data: Record<string, never>) => void;
+  "scan-result-created": (sessionId: number, result: ScanResult) => void;
+  "scan-complete": (sessionId: number) => void;
+  "project-changed": () => void;
 };
 
 export type FrontendSDK = Caido<API, BackendEvents>;

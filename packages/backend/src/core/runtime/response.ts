@@ -1,15 +1,6 @@
 import { ResponseParser } from "@caido-utils/parser";
 import type { Response } from "caido:utils";
 
-type BodyProxy = {
-  readonly type: string | undefined;
-  readonly items: { name: string; value: unknown }[];
-  get(name: string): unknown;
-  has(name: string): boolean;
-  set(name: string, value: unknown): void;
-  remove(name: string): void;
-};
-
 export type ResponseProxy = {
   readonly statusCode: number;
   readonly duration: number;
@@ -18,16 +9,19 @@ export type ResponseProxy = {
     get(name: string): string | undefined;
     has(name: string): boolean;
   };
-  readonly body: BodyProxy | undefined;
+  readonly body: ResponseParser["body"] | undefined;
 };
 
+export function createResponseProxy(caidoRes: Response): ResponseProxy;
+export function createResponseProxy(
+  caidoRes?: Response,
+): ResponseProxy | undefined;
 export function createResponseProxy(
   caidoRes?: Response,
 ): ResponseProxy | undefined {
   if (caidoRes === undefined) return undefined;
 
   let parser: ResponseParser | undefined;
-  let bodyProxy: BodyProxy | undefined;
   let parseFailed = false;
 
   const getParser = (): ResponseParser | undefined => {
@@ -41,26 +35,6 @@ export function createResponseProxy(
       }
     }
     return parser;
-  };
-
-  const getBodyProxy = (): BodyProxy | undefined => {
-    const p = getParser();
-    if (p === undefined || p.body === undefined) return undefined;
-    if (bodyProxy === undefined) {
-      bodyProxy = {
-        get type() {
-          return p.body!.type;
-        },
-        get items() {
-          return p.body!.items;
-        },
-        get: (name: string) => p.body!.get(name),
-        has: (name: string) => p.body!.has(name),
-        set: (name: string, value: string) => p.body!.set(name, value),
-        remove: (name: string) => p.body!.remove(name),
-      };
-    }
-    return bodyProxy;
   };
 
   const emptyHeaders = {
@@ -86,7 +60,8 @@ export function createResponseProxy(
       };
     },
     get body() {
-      return getBodyProxy();
+      const p = getParser();
+      return p === undefined ? undefined : p.body;
     },
   };
 }

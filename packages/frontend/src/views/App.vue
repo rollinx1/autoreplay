@@ -6,19 +6,22 @@ import { onMounted, ref } from "vue";
 import Checks from "./Checks.vue";
 import Dashboard from "./Dashboard.vue";
 import Guide from "./Guide.vue";
-import Settings from "./Settings.vue";
+import Profiles from "./Profiles.vue";
+import Resources from "./Resources.vue";
 
 import DialogManager from "@/components/dialogs/DialogManager.vue";
 import { useChecks } from "@/composables/useChecks";
 import { useEvents } from "@/composables/useEvents";
+import { useProfiles } from "@/composables/useProfiles";
 import { useSession } from "@/composables/useSession";
 import { useSDK } from "@/plugins/sdk";
 
-type ActiveTab = "scanner" | "checks" | "guide" | "settings";
+type ActiveTab = "scanner" | "checks" | "profiles" | "guide" | "resources";
 
 const sdk = useSDK();
 const session = useSession();
 const checks = useChecks();
+const profiles = useProfiles();
 const { registerEventListeners } = useEvents(sdk);
 const activeTab = ref<ActiveTab>("scanner");
 
@@ -38,6 +41,13 @@ const items = [
     },
   },
   {
+    label: "Profiles",
+    isActive: () => activeTab.value === "profiles",
+    command: () => {
+      activeTab.value = "profiles";
+    },
+  },
+  {
     label: "Guide",
     isActive: () => activeTab.value === "guide",
     command: () => {
@@ -45,10 +55,10 @@ const items = [
     },
   },
   {
-    label: "Settings",
-    isActive: () => activeTab.value === "settings",
+    label: "Resources",
+    isActive: () => activeTab.value === "resources",
     command: () => {
-      activeTab.value = "settings";
+      activeTab.value = "resources";
     },
   },
 ];
@@ -57,6 +67,7 @@ onMounted(() => {
   registerEventListeners();
   void session.fetchSessions();
   void checks.fetchChecks();
+  void profiles.fetchProfiles();
 });
 </script>
 
@@ -88,8 +99,9 @@ onMounted(() => {
     <div class="flex-1 min-h-0 overflow-hidden">
       <Dashboard v-if="activeTab === 'scanner'" />
       <Checks v-else-if="activeTab === 'checks'" />
+      <Profiles v-else-if="activeTab === 'profiles'" />
       <Guide v-else-if="activeTab === 'guide'" />
-      <Settings v-else-if="activeTab === 'settings'" />
+      <Resources v-else-if="activeTab === 'resources'" />
     </div>
 
     <DialogManager />

@@ -5,10 +5,10 @@ import InputText from "primevue/inputtext";
 import { ref } from "vue";
 
 import { useDialog } from "@/composables/useDialog";
-import { useSettings } from "@/composables/useSettings";
+import { useResources } from "@/composables/useResources";
 
 const { closeDialog } = useDialog();
-const { saveConstant } = useSettings();
+const { saveConstant } = useResources();
 
 const identifier = ref("");
 const value = ref("");

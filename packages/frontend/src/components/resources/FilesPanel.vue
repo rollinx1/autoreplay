@@ -3,11 +3,12 @@ import { Card } from "@caido-utils/ui-components";
 import Button from "primevue/button";
 import { onMounted, ref } from "vue";
 
-import { useSettings } from "@/composables/useSettings";
-import { useSettingsStore } from "@/stores";
+import { useResources } from "@/composables/useResources";
+import { useResourcesStore } from "@/stores";
 
-const store = useSettingsStore();
-const { fetchPayloadFiles, savePayloadFile, deletePayloadFile } = useSettings();
+const store = useResourcesStore();
+const { fetchPayloadFiles, savePayloadFile, deletePayloadFile } =
+  useResources();
 
 const fileInput = ref<HTMLInputElement | undefined>(undefined);
 

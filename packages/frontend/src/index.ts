@@ -2,49 +2,34 @@ import { Classic } from "@caido/primevue";
 import PrimeVue from "primevue/config";
 import { createApp } from "vue";
 
+import { useCaido } from "./composables/useCaido";
 import { SDKPlugin } from "./plugins/sdk";
 import { pinia } from "./stores";
 import "./styles/index.css";
 import type { FrontendSDK } from "./types";
 import App from "./views/App.vue";
 
-// This is the entry point for the frontend plugin
-export const init = (sdk: FrontendSDK) => {
+export const init = async (sdk: FrontendSDK) => {
   const app = createApp(App);
 
-  // Load the PrimeVue component library
   app.use(PrimeVue, {
     unstyled: true,
     pt: Classic,
   });
 
-  // Provide the FrontendSDK
   app.use(SDKPlugin, sdk);
   app.use(pinia);
 
-  // Create the root element for the app
   const root = document.createElement("div");
   Object.assign(root.style, {
     height: "100%",
     width: "100%",
   });
 
-  // Set the ID of the root element
-  // Replace this with the value of the prefixWrap plugin in caido.config.ts
-  // This is necessary to prevent styling conflicts between plugins
   root.id = `plugin--autoreplay`;
 
-  // Mount the app to the root element
   app.mount(root);
 
-  // Add the page to the navigation
-  // Make sure to use a unique name for the page
-  sdk.navigation.addPage("/autoreplay", {
-    body: root,
-  });
-
-  // Add a sidebar item
-  sdk.sidebar.registerItem("AutoReplay", "/autoreplay", {
-    icon: "fas fa-bolt",
-  });
+  const caido = useCaido(sdk);
+  await caido.register(root);
 };

@@ -7,12 +7,6 @@ type DiscordWebhook = {
   url: string;
 };
 
-type CallbackConfig = {
-  id: number;
-  identifier: string;
-  providerUrl: string;
-};
-
 type PayloadFile = {
   id: number;
   identifier: string;
@@ -33,19 +27,14 @@ type Constant = {
   value: string;
 };
 
-export const useSettingsStore = defineStore("settings", () => {
+export const useResourcesStore = defineStore("resources", () => {
   const discordWebhooks = ref<DiscordWebhook[]>([]);
-  const callbackConfigs = ref<CallbackConfig[]>([]);
   const payloadFiles = ref<PayloadFile[]>([]);
   const payloadLists = ref<PayloadList[]>([]);
   const constants = ref<Constant[]>([]);
 
   const setDiscordWebhooks = (val: DiscordWebhook[]) => {
     discordWebhooks.value = val;
-  };
-
-  const setCallbackConfigs = (val: CallbackConfig[]) => {
-    callbackConfigs.value = val;
   };
 
   const setPayloadFiles = (val: PayloadFile[]) => {
@@ -62,12 +51,10 @@ export const useSettingsStore = defineStore("settings", () => {
 
   return {
     discordWebhooks,
-    callbackConfigs,
     payloadFiles,
     payloadLists,
     constants,
     setDiscordWebhooks,
-    setCallbackConfigs,
     setPayloadFiles,
     setPayloadLists,
     setConstants,

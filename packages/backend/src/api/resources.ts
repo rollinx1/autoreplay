@@ -1,41 +1,41 @@
 import type { SDK } from "caido:plugin";
 
 import {
-  deleteSetting as deleteSettingDb,
-  getSettings as getSettingsDb,
-  upsertSetting as upsertSettingDb,
+  deleteResource as deleteResourceDb,
+  getResources as getResourcesDb,
+  upsertResource as upsertResourceDb,
 } from "../database";
-import type { Result, Setting } from "../types";
+import type { Resource, Result } from "../types";
 
 // ─── Generic CRUD (escape hatch) ───
 
-const getSettings = async (
+const getResources = async (
   sdk: SDK,
   type?: string,
-): Promise<Result<Setting[]>> => {
+): Promise<Result<Resource[]>> => {
   try {
-    const rows = await getSettingsDb(sdk, type);
-    const settings: Setting[] = rows.map((row) => ({
+    const rows = await getResourcesDb(sdk, type);
+    const resources: Resource[] = rows.map((row) => ({
       id: row.id,
       type: row.type,
       identifier: row.identifier,
       data: row.data,
     }));
-    return { kind: "Ok", value: settings };
+    return { kind: "Ok", value: resources };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return { kind: "Error", error: message };
   }
 };
 
-const upsertSetting = async (
+const upsertResource = async (
   sdk: SDK,
   type: string,
   identifier: string,
   data: string,
 ): Promise<Result<void>> => {
   try {
-    await upsertSettingDb(sdk, type, identifier, data);
+    await upsertResourceDb(sdk, type, identifier, data);
     return { kind: "Ok", value: undefined };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
@@ -43,13 +43,13 @@ const upsertSetting = async (
   }
 };
 
-const deleteSetting = async (
+const deleteResource = async (
   sdk: SDK,
   type: string,
   identifier: string,
 ): Promise<Result<void>> => {
   try {
-    await deleteSettingDb(sdk, type, identifier);
+    await deleteResourceDb(sdk, type, identifier);
     return { kind: "Ok", value: undefined };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
@@ -68,7 +68,7 @@ type DiscordWebhook = {
 export const getDiscordWebhooks = async (
   sdk: SDK,
 ): Promise<Result<DiscordWebhook[]>> => {
-  const result = await getSettings(sdk, "discord");
+  const result = await getResources(sdk, "discord");
   if (result.kind === "Error") return result;
 
   const webhooks: DiscordWebhook[] = result.value.map((s) => {
@@ -88,58 +88,14 @@ export const saveDiscordWebhook = async (
   identifier: string,
   url: string,
 ): Promise<Result<void>> => {
-  return upsertSetting(sdk, "discord", identifier, JSON.stringify({ url }));
+  return upsertResource(sdk, "discord", identifier, JSON.stringify({ url }));
 };
 
 export const deleteDiscordWebhook = async (
   sdk: SDK,
   identifier: string,
 ): Promise<Result<void>> => {
-  return deleteSetting(sdk, "discord", identifier);
-};
-
-type CallbackConfig = {
-  id: number;
-  identifier: string;
-  providerUrl: string;
-};
-
-export const getCallbackConfigs = async (
-  sdk: SDK,
-): Promise<Result<CallbackConfig[]>> => {
-  const result = await getSettings(sdk, "callback");
-  if (result.kind === "Error") return result;
-
-  const configs: CallbackConfig[] = result.value.map((s) => {
-    const parsed = JSON.parse(s.data) as { providerUrl: string };
-    return {
-      id: s.id,
-      identifier: s.identifier,
-      providerUrl: parsed.providerUrl,
-    };
-  });
-
-  return { kind: "Ok", value: configs };
-};
-
-export const saveCallbackConfig = async (
-  sdk: SDK,
-  identifier: string,
-  providerUrl: string,
-): Promise<Result<void>> => {
-  return upsertSetting(
-    sdk,
-    "callback",
-    identifier,
-    JSON.stringify({ providerUrl }),
-  );
-};
-
-export const deleteCallbackConfig = async (
-  sdk: SDK,
-  identifier: string,
-): Promise<Result<void>> => {
-  return deleteSetting(sdk, "callback", identifier);
+  return deleteResource(sdk, "discord", identifier);
 };
 
 type PayloadFile = {
@@ -152,7 +108,7 @@ type PayloadFile = {
 export const getPayloadFiles = async (
   sdk: SDK,
 ): Promise<Result<PayloadFile[]>> => {
-  const result = await getSettings(sdk, "file");
+  const result = await getResources(sdk, "file");
   if (result.kind === "Error") return result;
 
   const files: PayloadFile[] = result.value.map((s) => {
@@ -174,7 +130,7 @@ export const savePayloadFile = async (
   name: string,
   content: string,
 ): Promise<Result<void>> => {
-  return upsertSetting(
+  return upsertResource(
     sdk,
     "file",
     identifier,
@@ -186,7 +142,7 @@ export const deletePayloadFile = async (
   sdk: SDK,
   identifier: string,
 ): Promise<Result<void>> => {
-  return deleteSetting(sdk, "file", identifier);
+  return deleteResource(sdk, "file", identifier);
 };
 
 type PayloadList = {
@@ -199,7 +155,7 @@ type PayloadList = {
 export const getPayloadLists = async (
   sdk: SDK,
 ): Promise<Result<PayloadList[]>> => {
-  const result = await getSettings(sdk, "list");
+  const result = await getResources(sdk, "list");
   if (result.kind === "Error") return result;
 
   const lists: PayloadList[] = result.value.map((s) => {
@@ -221,7 +177,7 @@ export const savePayloadList = async (
   name: string,
   items: string[],
 ): Promise<Result<void>> => {
-  return upsertSetting(
+  return upsertResource(
     sdk,
     "list",
     identifier,
@@ -233,7 +189,7 @@ export const deletePayloadList = async (
   sdk: SDK,
   identifier: string,
 ): Promise<Result<void>> => {
-  return deleteSetting(sdk, "list", identifier);
+  return deleteResource(sdk, "list", identifier);
 };
 
 type Constant = {
@@ -243,7 +199,7 @@ type Constant = {
 };
 
 export const getConstants = async (sdk: SDK): Promise<Result<Constant[]>> => {
-  const result = await getSettings(sdk, "constant");
+  const result = await getResources(sdk, "constant");
   if (result.kind === "Error") return result;
 
   const constants: Constant[] = result.value.map((s) => {
@@ -263,12 +219,12 @@ export const saveConstant = async (
   identifier: string,
   value: string,
 ): Promise<Result<void>> => {
-  return upsertSetting(sdk, "constant", identifier, JSON.stringify({ value }));
+  return upsertResource(sdk, "constant", identifier, JSON.stringify({ value }));
 };
 
 export const deleteConstant = async (
   sdk: SDK,
   identifier: string,
 ): Promise<Result<void>> => {
-  return deleteSetting(sdk, "constant", identifier);
+  return deleteResource(sdk, "constant", identifier);
 };

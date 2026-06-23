@@ -6,10 +6,10 @@ import Textarea from "primevue/textarea";
 import { ref } from "vue";
 
 import { useDialog } from "@/composables/useDialog";
-import { useSettings } from "@/composables/useSettings";
+import { useResources } from "@/composables/useResources";
 
 const { closeDialog } = useDialog();
-const { savePayloadList } = useSettings();
+const { savePayloadList } = useResources();
 
 const identifier = ref("");
 const name = ref("");

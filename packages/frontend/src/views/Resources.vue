@@ -2,48 +2,36 @@
 import { Card } from "@caido-utils/ui-components";
 import { ref } from "vue";
 
-import CallbacksPanel from "@/components/settings/CallbacksPanel.vue";
-import ConstantsPanel from "@/components/settings/ConstantsPanel.vue";
-import FilesPanel from "@/components/settings/FilesPanel.vue";
-import ListsPanel from "@/components/settings/ListsPanel.vue";
-import NotificationsPanel from "@/components/settings/NotificationsPanel.vue";
+import ConstantsPanel from "@/components/resources/ConstantsPanel.vue";
+import FilesPanel from "@/components/resources/FilesPanel.vue";
+import ListsPanel from "@/components/resources/ListsPanel.vue";
+import NotificationsPanel from "@/components/resources/NotificationsPanel.vue";
 
-type SettingsSection =
-  | "notifications"
-  | "files"
-  | "lists"
-  | "callbacks"
-  | "constants";
+type ResourcesSection = "notifications" | "files" | "lists" | "constants";
 
-const selected = ref<SettingsSection>("notifications");
+const selected = ref<ResourcesSection>("notifications");
 
 const categories = [
   {
-    id: "notifications" as SettingsSection,
+    id: "notifications" as ResourcesSection,
     name: "Notifications",
     icon: "fas fa-bell",
     description: "Discord webhooks",
   },
   {
-    id: "files" as SettingsSection,
+    id: "files" as ResourcesSection,
     name: "Files",
     icon: "fas fa-file-lines",
     description: "Uploaded payload files",
   },
   {
-    id: "lists" as SettingsSection,
+    id: "lists" as ResourcesSection,
     name: "Lists",
     icon: "fas fa-list",
     description: "Inline text lists",
   },
   {
-    id: "callbacks" as SettingsSection,
-    name: "Callbacks",
-    icon: "fas fa-link",
-    description: "Callback URLs",
-  },
-  {
-    id: "constants" as SettingsSection,
+    id: "constants" as ResourcesSection,
     name: "Constants",
     icon: "fas fa-sliders",
     description: "Key-value pairs",
@@ -64,7 +52,7 @@ const categories = [
               <span
                 class="text-xs font-medium text-surface-400 uppercase tracking-wide"
               >
-                Settings
+                Resources
               </span>
             </div>
 
@@ -113,7 +101,6 @@ const categories = [
       <NotificationsPanel v-if="selected === 'notifications'" />
       <FilesPanel v-else-if="selected === 'files'" />
       <ListsPanel v-else-if="selected === 'lists'" />
-      <CallbacksPanel v-else-if="selected === 'callbacks'" />
       <ConstantsPanel v-else-if="selected === 'constants'" />
     </div>
   </div>

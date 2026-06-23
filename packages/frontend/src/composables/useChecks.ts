@@ -63,7 +63,7 @@ export function useChecks() {
     const rule: Omit<CheckRule, "id"> = {
       name: "New Check",
       description: "",
-      code: `// Available: request, send, notify, callback, utils
+      code: `// Available: request, send, notify, utils
 // request is a Parser-like object with: method, path, query, headers, body, cookies, version
 // plus: id, url, host, capturedAt, raw (getter)
 //
@@ -72,7 +72,6 @@ export function useChecks() {
 //
 // Extras:
 //   - notify.discord({ webhookUrl, message })
-//   - callback.spawn() -> { url, waitForHit({ timeout }) }
 //   - utils.urlEncode, urlDecode
 
 // Example: add a test query parameter

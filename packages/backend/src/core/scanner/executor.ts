@@ -18,12 +18,13 @@ export const executeCheck = async (
   const response = rawRequest.response;
   const requestId = request.getId();
 
-  const { send, notify, callback, list, utils, encode, decode } = createContext(
+  const { send, notify, list, utils, encode, decode } = createContext(
     sdk,
     sessionId,
     requestId,
     check,
     pool.enqueue,
+    () => pool.isStopped(),
   );
 
   const requestProxy = createRequestProxy(request);
@@ -36,7 +37,6 @@ export const executeCheck = async (
       "response",
       "send",
       "notify",
-      "callback",
       "urlEncode",
       "urlDecode",
       "random",
@@ -58,7 +58,6 @@ export const executeCheck = async (
       responseProxy,
       send,
       notify,
-      callback,
       utils.urlEncode,
       utils.urlDecode,
       utils.random,

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ConfirmDialog from "primevue/confirmdialog";
 
-import AddCallbackDialog from "./AddCallbackDialog/Container.vue";
 import AddConstantDialog from "./AddConstantDialog/Container.vue";
 import AddListDialog from "./AddListDialog/Container.vue";
 import AddWebhookDialog from "./AddWebhookDialog/Container.vue";
@@ -9,6 +8,7 @@ import DeleteCheckDialog from "./DeleteCheckDialog/Container.vue";
 import DeleteSessionDialog from "./DeleteSessionDialog/Container.vue";
 import EditSessionDialog from "./EditSessionDialog/Container.vue";
 import GuideDialog from "./GuideDialog/Container.vue";
+import SendToAutoReplayDialog from "./SendToAutoReplayDialog/Container.vue";
 
 import { useDialog } from "@/composables/useDialog";
 import { useUIStore } from "@/stores/ui";
@@ -36,13 +36,13 @@ const { closeDialog } = useDialog();
     v-if="store.mainView === 'add-webhook'"
     @close="closeDialog()"
   />
-  <AddCallbackDialog
-    v-if="store.mainView === 'add-callback'"
-    @close="closeDialog()"
-  />
   <AddListDialog v-if="store.mainView === 'add-list'" @close="closeDialog()" />
   <AddConstantDialog
     v-if="store.mainView === 'add-constant'"
+    @close="closeDialog()"
+  />
+  <SendToAutoReplayDialog
+    v-if="store.mainView === 'send-to-autoreplay'"
     @close="closeDialog()"
   />
 </template>

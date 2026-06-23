@@ -4,19 +4,19 @@ import Button from "primevue/button";
 import { onMounted } from "vue";
 
 import { useDialog } from "@/composables/useDialog";
-import { useSettings } from "@/composables/useSettings";
-import { useSettingsStore } from "@/stores";
+import { useResources } from "@/composables/useResources";
+import { useResourcesStore } from "@/stores";
 
-const store = useSettingsStore();
-const { fetchDiscordWebhooks, deleteDiscordWebhook } = useSettings();
-const { openAddWebhook } = useDialog();
+const store = useResourcesStore();
+const { fetchConstants, deleteConstant } = useResources();
+const { openAddConstant } = useDialog();
 
 onMounted(() => {
-  void fetchDiscordWebhooks();
+  void fetchConstants();
 });
 
 const onDelete = async (id: string) => {
-  await deleteDiscordWebhook(id);
+  await deleteConstant(id);
 };
 </script>
 
@@ -28,38 +28,36 @@ const onDelete = async (id: string) => {
           class="flex items-center justify-between px-4 py-3 border-b border-surface-700"
         >
           <div>
-            <h2 class="text-base font-bold text-surface-100">Notifications</h2>
+            <h2 class="text-base font-bold text-surface-100">Constants</h2>
             <p class="text-xs text-surface-500 mt-0.5">
-              Discord webhook configuration
+              Key-value pairs for checks
             </p>
           </div>
           <Button
             icon="fas fa-plus"
             label="Add"
             size="small"
-            @click="openAddWebhook"
+            @click="openAddConstant"
           />
         </div>
-
         <div class="flex-1 overflow-y-auto">
           <div
             class="grid grid-cols-12 gap-2 px-4 py-2 text-xs text-surface-500 border-b border-surface-700"
           >
-            <div class="col-span-3">Identifier</div>
-            <div class="col-span-8">Webhook URL</div>
+            <div class="col-span-3">Key</div>
+            <div class="col-span-8">Value</div>
             <div class="col-span-1" />
           </div>
-
           <div
-            v-for="wh in store.discordWebhooks"
-            :key="wh.identifier"
+            v-for="c in store.constants"
+            :key="c.identifier"
             class="grid grid-cols-12 gap-2 px-4 py-2 items-center text-xs hover:bg-surface-800 transition-colors border-b border-surface-800"
           >
             <div class="col-span-3 text-surface-200 font-semibold truncate">
-              {{ wh.identifier }}
+              {{ c.identifier }}
             </div>
             <div class="col-span-8 text-surface-500 truncate">
-              {{ wh.url }}
+              {{ c.value }}
             </div>
             <div class="col-span-1 flex justify-end">
               <Button
@@ -67,17 +65,16 @@ const onDelete = async (id: string) => {
                 severity="danger"
                 size="small"
                 text
-                @click="onDelete(wh.identifier)"
+                @click="onDelete(c.identifier)"
               />
             </div>
           </div>
-
           <div
-            v-if="store.discordWebhooks.length === 0"
+            v-if="store.constants.length === 0"
             class="py-12 text-center text-surface-600 text-xs flex flex-col items-center"
           >
-            <i class="fas fa-bell-slash text-2xl mb-2 opacity-50" />
-            <p>No webhooks configured</p>
+            <i class="fas fa-sliders text-2xl mb-2 opacity-50" />
+            <p>No constants configured</p>
           </div>
         </div>
       </div>

@@ -1,23 +1,36 @@
 import { computed, ref } from "vue";
 
+import { useSDK } from "@/plugins/sdk";
 import { useSessionStore } from "@/stores";
 import type { ScanResult } from "@/types";
 
 export function useTable() {
+  const sdk = useSDK();
   const sessionStore = useSessionStore();
 
   const activeRow = ref<Record<string, unknown> | undefined>(undefined);
-  const filterText = ref("");
+  const filterText = computed({
+    get: () => sessionStore.selectedSession?.resultsFilter ?? "",
+    set: (value) => {
+      const selectedSession = sessionStore.selectedSession;
+      if (selectedSession === undefined) return;
+      sessionStore.updateSession({
+        ...selectedSession,
+        resultsFilter: value,
+      });
+    },
+  });
+  const isSearching = ref(false);
+  const filteredRequestIds = ref<Set<string> | undefined>(undefined);
 
   const items = computed(() => {
     const results = sessionStore.currentSessionResults;
-    const q = filterText.value.trim().toLowerCase();
-    if (!q) return results;
+    if (filteredRequestIds.value === undefined) return results;
+
     return results.filter(
       (r) =>
-        r.checkName?.toLowerCase().includes(q) ??
-        r.path.toLowerCase().includes(q) ??
-        r.host.toLowerCase().includes(q),
+        r.modifiedRequestId !== undefined &&
+        filteredRequestIds.value?.has(r.modifiedRequestId) === true,
     );
   });
 
@@ -64,11 +77,62 @@ export function useTable() {
     sessionStore.selectSessionResult(event.data._original.id);
   };
 
+  const handleSearch = async () => {
+    const selectedSession = sessionStore.selectedSession;
+    if (selectedSession === undefined) return;
+
+    let scanTag = selectedSession.scanTag;
+    if (scanTag.trim().length === 0) {
+      const sessionsResult = await sdk.backend.getSessions();
+      if (sessionsResult.kind === "Error") {
+        sdk.window.showToast(sessionsResult.error, { variant: "error" });
+        return;
+      }
+      sessionStore.setSessions(sessionsResult.value);
+      scanTag =
+        sessionsResult.value.find((s) => s.id === selectedSession.id)
+          ?.scanTag ?? "";
+    }
+
+    if (scanTag.trim().length === 0) {
+      sdk.window.showToast("Scan tag is not available yet", {
+        variant: "error",
+      });
+      return;
+    }
+
+    isSearching.value = true;
+    const result = await sdk.backend.getFilteredRequests(
+      filterText.value,
+      scanTag,
+    );
+    isSearching.value = false;
+
+    if (result.kind === "Error") {
+      sdk.window.showToast(result.error, { variant: "error" });
+      return;
+    }
+
+    const updateResult = await sdk.backend.updateSession(selectedSession.id, {
+      resultsFilter: filterText.value,
+    });
+    if (updateResult.kind === "Ok") {
+      sessionStore.updateSession(updateResult.value);
+    } else {
+      sdk.window.showToast(updateResult.error, { variant: "error" });
+    }
+
+    filteredRequestIds.value = new Set(result.value.map((r) => r.id));
+    activeRow.value = undefined;
+    sessionStore.selectSessionResult(undefined);
+  };
+
   return {
     activeRow,
     filterText,
     items: displayItems,
     columns,
     handleRowClick,
+    handleSearch,
   };
 }

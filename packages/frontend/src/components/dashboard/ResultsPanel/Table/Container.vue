@@ -5,7 +5,7 @@ import {
   HttpqlInput,
 } from "@caido-utils/ui-components";
 import Button from "primevue/button";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 
 import { useTable } from "./useTable";
 
@@ -13,14 +13,25 @@ import { useScan } from "@/composables/useScan";
 import { useSessionStore } from "@/stores";
 import type { ScanResult } from "@/types";
 
-const { activeRow, filterText, items, columns, handleRowClick } = useTable();
+const { activeRow, filterText, items, columns, handleRowClick, handleSearch } =
+  useTable();
 const sessionStore = useSessionStore();
-const { pauseScan, resumeScan, stopScan } = useScan();
+const { pauseScan, resumeScan, stopScan, syncScanState } = useScan();
 
 const scanState = computed(() => sessionStore.currentSessionSetup.scanState);
 const isRunning = computed(() => scanState.value === "running");
 const isPaused = computed(() => scanState.value === "paused");
 const isActive = computed(() => isRunning.value || isPaused.value);
+
+watch(
+  () => sessionStore.selectedSessionId,
+  (sessionId) => {
+    if (sessionId !== undefined) {
+      void syncScanState(sessionId);
+    }
+  },
+  { immediate: true },
+);
 
 const onPause = () => {
   const id = sessionStore.selectedSessionId;
@@ -56,6 +67,7 @@ const onRowClick = (event: { data: Record<string, unknown> }) => {
             v-model="filterText"
             placeholder="Filter requests..."
             class="flex-1"
+            @keyup.enter="handleSearch"
           />
           <Button
             v-if="isRunning"

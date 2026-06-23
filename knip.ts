@@ -4,7 +4,7 @@ const config: RawConfigurationOrFn = {
   workspaces: {
     ".": {
       entry: ["caido.config.ts", "eslint.config.mjs"],
-      ignore: ["Swapper/**"],
+      ignore: ["Swapper/**", "MultiReplay/**"],
     },
     "packages/backend": {
       entry: ["src/index.ts", "src/**/index.ts"],

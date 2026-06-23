@@ -2,13 +2,15 @@ import type { SDK } from "caido:plugin";
 
 export async function initializeDatabase(sdk: SDK): Promise<void> {
   const db = await sdk.meta.db();
-
   await db.exec(`
     CREATE TABLE IF NOT EXISTS sessions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       project_id TEXT NOT NULL,
       name TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'setup',
+      setup_filter TEXT NOT NULL DEFAULT '',
+      results_filter TEXT NOT NULL DEFAULT '',
+      scan_tag TEXT NOT NULL DEFAULT '',
       created_at INTEGER DEFAULT (strftime('%s', 'now')),
       updated_at INTEGER DEFAULT (strftime('%s', 'now'))
     )
@@ -19,10 +21,17 @@ export async function initializeDatabase(sdk: SDK): Promise<void> {
     ON sessions(project_id)
   `);
 
+  try {
+    await db.exec(
+      `ALTER TABLE sessions ADD COLUMN setup_filter TEXT NOT NULL DEFAULT ''`,
+    );
+  } catch {
+    // Column already exists in older databases
+  }
+
   await db.exec(`
     CREATE TABLE IF NOT EXISTS checks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_id TEXT NOT NULL,
       name TEXT NOT NULL,
       description TEXT NOT NULL DEFAULT '',
       code TEXT NOT NULL DEFAULT '',
@@ -32,8 +41,16 @@ export async function initializeDatabase(sdk: SDK): Promise<void> {
   `);
 
   await db.exec(`
-    CREATE INDEX IF NOT EXISTS idx_checks_project
-    ON checks(project_id)
+    CREATE TABLE IF NOT EXISTS scan_profiles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      check_ids TEXT NOT NULL DEFAULT '[]',
+      threads INTEGER NOT NULL DEFAULT 5,
+      delay_ms INTEGER NOT NULL DEFAULT 0,
+      timeout_sec INTEGER NOT NULL DEFAULT 30,
+      created_at INTEGER DEFAULT (strftime('%s', 'now')),
+      updated_at INTEGER DEFAULT (strftime('%s', 'now'))
+    )
   `);
 
   await db.exec(`
@@ -64,26 +81,20 @@ export async function initializeDatabase(sdk: SDK): Promise<void> {
   `);
 
   await db.exec(`
-    CREATE TABLE IF NOT EXISTS settings (
+    CREATE TABLE IF NOT EXISTS resources (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,
       identifier TEXT NOT NULL,
-      project_id TEXT NOT NULL,
       data TEXT NOT NULL DEFAULT '{}',
       created_at INTEGER DEFAULT (strftime('%s', 'now')),
       updated_at INTEGER DEFAULT (strftime('%s', 'now')),
-      UNIQUE(type, identifier, project_id)
+      UNIQUE(type, identifier)
     )
   `);
 
   await db.exec(`
-    CREATE INDEX IF NOT EXISTS idx_settings_project
-    ON settings(project_id)
-  `);
-
-  await db.exec(`
-    CREATE INDEX IF NOT EXISTS idx_settings_type
-    ON settings(type)
+    CREATE INDEX IF NOT EXISTS idx_resources_type
+    ON resources(type)
   `);
 
   sdk.console.log("AutoReplay database initialized");

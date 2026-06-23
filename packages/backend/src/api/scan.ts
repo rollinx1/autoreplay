@@ -17,6 +17,18 @@ export const executeScan = (
   if (checks.length === 0) {
     return { kind: "Error", error: "No checks selected" };
   }
+  if (!Number.isInteger(options.threads) || options.threads < 1) {
+    return { kind: "Error", error: "Threads must be a positive integer" };
+  }
+  if (!Number.isInteger(options.delayMs) || options.delayMs < 0) {
+    return {
+      kind: "Error",
+      error: "Delay must be a non-negative integer",
+    };
+  }
+  if (!Number.isInteger(options.timeoutSec) || options.timeoutSec < 1) {
+    return { kind: "Error", error: "Timeout must be a positive integer" };
+  }
   if (getActivePool(sessionId) !== undefined) {
     return {
       kind: "Error",
@@ -61,6 +73,17 @@ export const stopScan = (_sdk: SDK, sessionId: number): Result<void> => {
   }
   pool.stop();
   return { kind: "Ok", value: undefined };
+};
+
+export const getScanState = (
+  _sdk: SDK,
+  sessionId: number,
+): Result<"idle" | "running" | "paused" | "stopped"> => {
+  const pool = getActivePool(sessionId);
+  return {
+    kind: "Ok",
+    value: pool?.getState() ?? "idle",
+  };
 };
 
 export const getScanResults = async (

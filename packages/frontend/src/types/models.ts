@@ -5,6 +5,16 @@ export type CheckRule = {
   code: string;
 };
 
+export type ScanProfile = {
+  id: number;
+  name: string;
+  checkIds: number[];
+  threads: number;
+  delayMs: number;
+  timeoutSec: number;
+  createdAt: string;
+};
+
 export type HttpRequest = {
   id: string;
   method: string;
@@ -37,6 +47,9 @@ export type Session = {
   id: number;
   name: string;
   status: "setup" | "results";
+  setupFilter: string;
+  resultsFilter: string;
+  scanTag: string;
   requests: HttpRequest[];
   createdAt: string;
 };

@@ -66,7 +66,12 @@ export const clearSessions = async (sdk: SDK): Promise<Result<void>> => {
 export const updateSession = async (
   sdk: SDK,
   id: number,
-  input: { name?: string; status?: "setup" | "results" },
+  input: {
+    name?: string;
+    status?: "setup" | "results";
+    setupFilter?: string;
+    resultsFilter?: string;
+  },
 ): Promise<Result<Session>> => {
   try {
     await updateSessionDb(sdk, id, input);

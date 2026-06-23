@@ -61,7 +61,7 @@ const getExtensions = () => {
               {
                 label: "body",
                 type: "property",
-                info: "BodyProxy | undefined",
+                info: "BodyAccessor — .raw, .type, .items, .get, .set, .remove",
               },
               { label: "build", type: "method", info: "() => string" },
             );
@@ -73,7 +73,7 @@ const getExtensions = () => {
               {
                 label: "body",
                 type: "property",
-                info: "BodyProxy | undefined",
+                info: "BodyAccessor | undefined — .raw, .type, .items, .get, .has",
               },
             );
           } else if (prefix === "send") {
@@ -87,12 +87,6 @@ const getExtensions = () => {
               label: "discord",
               type: "method",
               info: "(identifier: string) => Promise<{ message: (text: string) => Promise<void> }>",
-            });
-          } else if (prefix === "callback") {
-            options.push({
-              label: "spawn",
-              type: "method",
-              info: "() => Promise<{ url, waitForHit({ timeout? }) }>",
             });
           } else if (prefix === "path") {
             options.push(
@@ -193,9 +187,14 @@ const getExtensions = () => {
                 info: "(name: string) => void",
               },
             );
-          } else if (prefix === "body") {
+          } else if (prefix === "request.body" || prefix === "response.body") {
             options.push(
-              { label: "type", type: "property", info: "string | undefined" },
+              { label: "raw", type: "property", info: "string" },
+              {
+                label: "type",
+                type: "property",
+                info: '"json" | "urlencoded" | "multipart" | "xml" | "html" | "raw"',
+              },
               {
                 label: "items",
                 type: "property",
@@ -220,11 +219,6 @@ const getExtensions = () => {
                 label: "remove",
                 type: "method",
                 info: "(name: string) => void",
-              },
-              {
-                label: "rawParts",
-                type: "property",
-                info: "{ name, contentType, value }[] (multipart only)",
               },
             );
           }
@@ -258,11 +252,6 @@ const getExtensions = () => {
             label: "notify",
             type: "variable",
             info: "{ discord(opts) } — webhook notifications",
-          },
-          {
-            label: "callback",
-            type: "variable",
-            info: "{ spawn() } — create listener, wait for hit",
           },
           {
             label: "urlEncode",

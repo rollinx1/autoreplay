@@ -5,6 +5,16 @@ export type CheckRule = {
   code: string;
 };
 
+export type ScanProfile = {
+  id: number;
+  name: string;
+  checkIds: number[];
+  threads: number;
+  delayMs: number;
+  timeoutSec: number;
+  createdAt: string;
+};
+
 export type HttpRequest = {
   id: string;
   method: string;
@@ -35,11 +45,14 @@ export type Session = {
   id: number;
   name: string;
   status: "setup" | "results";
+  setupFilter: string;
+  resultsFilter: string;
+  scanTag: string;
   requests: HttpRequest[];
   createdAt: string;
 };
 
-export type Setting = {
+export type Resource = {
   id: number;
   type: string;
   identifier: string;
@@ -57,7 +70,10 @@ export enum BackendEvent {
 }
 
 export type PluginEvents = {
-  [BackendEvent.ScanResultCreated]: { sessionId: number; result: ScanResult };
-  [BackendEvent.ScanComplete]: { sessionId: number };
-  [BackendEvent.ProjectChanged]: Record<string, never>;
+  [BackendEvent.ScanResultCreated]: (
+    sessionId: number,
+    result: ScanResult,
+  ) => void;
+  [BackendEvent.ScanComplete]: (sessionId: number) => void;
+  [BackendEvent.ProjectChanged]: () => void;
 };

@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
-    "@caido-utils/ui-components": "0.1.7",
+    "@caido-utils/frontend-sdk": "^0.1.0",
+    "@caido-utils/ui-components": "0.1.10",
     "@caido/primevue": "0.1.2",
     "@codemirror/autocomplete": "^6.20.1",
     "@codemirror/lang-javascript": "^6.2.5",
@@ -19,8 +20,8 @@
     "vue": "3.4.37"
   },
   "devDependencies": {
-    "@caido/sdk-backend": "^0.46.0",
-    "@caido/sdk-frontend": "^0.46.0",
+    "@caido/sdk-backend": "^0.56.2",
+    "@caido/sdk-frontend": "^0.56.2",
     "@codemirror/view": "6.28.1",
     "backend": "workspace:*",
     "vue-tsc": "2.0.29"

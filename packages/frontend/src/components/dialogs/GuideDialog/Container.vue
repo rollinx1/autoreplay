@@ -142,49 +142,33 @@ await send(request);`,
     category: "Body",
     title: "Set a body field",
     description: "Add or overwrite a body field (JSON, form, multipart)",
-    code: `if (request.body !== undefined) {
-  request.body.set("username", "admin");
-  await send(request);
-}`,
+    code: `request.body.set("username", "admin");
+await send(request);`,
   },
   {
     category: "Body",
     title: "Remove a body field",
     description: "Delete a body field by name",
-    code: `if (request.body !== undefined) {
-  request.body.remove("csrf_token");
-  await send(request);
-}`,
+    code: `request.body.remove("csrf_token");
+await send(request);`,
   },
   {
     category: "Body",
     title: "Loop through body fields",
     description: "Iterate and fuzz every existing body field",
-    code: `if (request.body !== undefined) {
-  for (const field of request.body.items) {
-    request.body.set(field.name, String(field.value) + "' OR '1'='1");
-    await send(request);
-    request.body.set(field.name, field.value);
-  }
+    code: `for (const field of request.body.items) {
+  request.body.set(field.name, String(field.value) + "' OR '1'='1");
+  await send(request);
+  request.body.set(field.name, field.value);
 }`,
   },
   {
     category: "Body",
     title: "Check body type",
     description: "Test if the body is a specific content type",
-    code: `if (request.body !== undefined && request.body.type === "json") {
+    code: `if (request.body.type === "json") {
   request.body.set("role", "admin");
   await send(request);
-}`,
-  },
-  {
-    category: "Body",
-    title: "Read multipart parts",
-    description: "Access raw multipart parts with content-type metadata",
-    code: `if (request.body !== undefined && request.body.rawParts) {
-  for (const part of request.body.rawParts) {
-    console.log(part.name, part.contentType, part.value);
-  }
 }`,
   },
   {
@@ -243,21 +227,6 @@ await send(request);
 
 const notification = await notify.discord("my-webhook");
 await notification.message("Check completed for " + request.host);`,
-  },
-  {
-    category: "Advanced",
-    title: "Callback / OOB detection",
-    description: "Spawn a callback URL and wait for a hit",
-    code: `const cb = await callback.spawn();
-console.log("Callback URL:", cb.url);
-
-request.query.set("callback", cb.url);
-await send(request);
-
-const hit = await cb.waitForHit({ timeout: 10000 });
-if (hit) {
-  console.log("Hit received:", hit.path);
-}`,
   },
   {
     category: "Advanced",

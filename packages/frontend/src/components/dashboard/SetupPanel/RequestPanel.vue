@@ -5,17 +5,24 @@ import {
   HttpqlInput,
   RequestEditor,
 } from "@caido-utils/ui-components";
+import Button from "primevue/button";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 
+import { useSession } from "@/composables/useSession";
 import { useSDK } from "@/plugins/sdk";
 import { useSessionStore } from "@/stores";
 import type { HttpRequest } from "@/types";
 
 const sdk = useSDK();
 const sessionStore = useSessionStore();
+const { updateSession } = useSession();
 const sessionId = computed(() => sessionStore.selectedSessionId);
+
+const emit = defineEmits<{
+  "open-advanced": [];
+}>();
 
 const rawRequest = ref<string | undefined>(undefined);
 const isSearching = ref(false);
@@ -69,11 +76,24 @@ watch(
 
 const onSearch = async () => {
   isSearching.value = true;
-  const result = await sdk.backend.getSetupRequests(httpqlFilter.value, true);
+  const setup = sessionStore.currentSessionSetup;
+  const result = await sdk.backend.getSetupRequests(httpqlFilter.value, {
+    deduplicate: setup.deduplicate,
+    inScope: setup.inScope,
+    noJavascript: setup.noJavascript,
+    noImages: setup.noImages,
+    noVideos: setup.noVideos,
+    noDocuments: setup.noDocuments,
+    noStyling: setup.noStyling,
+    timeFilter: setup.timeFilter,
+  });
   isSearching.value = false;
   if (result.kind === "Ok") {
     fetchedRequests.value = result.value;
     activeId.value = undefined;
+    if (sessionId.value !== undefined) {
+      void updateSession(sessionId.value, { setupFilter: httpqlFilter.value });
+    }
   } else {
     sdk.window.showToast(result.error, { variant: "error" });
   }
@@ -89,6 +109,16 @@ const onDeleteRow = (row: HttpRequest) => {
     activeId.value = undefined;
   }
 };
+
+watch(
+  () => fetchedRequests.value.length,
+  async (newLen, oldLen) => {
+    if (newLen > 0 && (oldLen === undefined || oldLen === 0)) {
+      await nextTick();
+      window.dispatchEvent(new Event("resize"));
+    }
+  },
+);
 </script>
 
 <template>
@@ -113,24 +143,33 @@ const onDeleteRow = (row: HttpRequest) => {
         <template #content>
           <div class="h-full flex flex-col min-h-0">
             <!-- Filter -->
-            <div class="px-3 py-2 border-b border-surface-700 flex shrink-0">
+            <div
+              class="px-3 py-2 border-b border-surface-700 flex items-center gap-2 shrink-0 relative"
+            >
               <HttpqlInput
                 v-model="httpqlFilter"
                 placeholder="Filter requests (method, host, path)..."
                 class="flex-1"
                 @keyup.enter="onSearch"
               />
+              <Button
+                icon="fas fa-cog"
+                text
+                size="small"
+                class="text-surface-400 hover:text-surface-300"
+                @click="emit('open-advanced')"
+              />
             </div>
 
-            <div class="flex-1 min-h-0 flex flex-col">
+            <div class="flex-1 min-h-0 flex flex-col relative">
               <DataTable
                 v-model:active-row="activeRow"
                 :items="fetchedRequests"
                 :columns="[
                   { field: 'method', header: 'Method', width: '80px' },
-                  { field: 'host', header: 'Host', width: '250px' },
-                  { field: 'path', header: 'Path', width: '300px' },
-                  { field: 'query', header: 'Query', width: '200px' },
+                  { field: 'host', header: 'Host' },
+                  { field: 'path', header: 'Path' },
+                  { field: 'query', header: 'Query' },
                   { field: 'actions', header: '', width: '50px' },
                 ]"
                 data-key="id"
@@ -148,15 +187,14 @@ const onDeleteRow = (row: HttpRequest) => {
                     <i class="fas fa-trash" />
                   </button>
                 </template>
-                <template #empty>
-                  <div
-                    class="flex-1 flex flex-col items-center justify-center text-surface-500 text-sm"
-                  >
-                    <i class="fas fa-globe text-2xl mb-2 opacity-50" />
-                    <p>No requests match this filter</p>
-                  </div>
-                </template>
               </DataTable>
+              <div
+                v-if="fetchedRequests.length === 0 && !isSearching"
+                class="absolute inset-0 flex flex-col items-center justify-center text-surface-500 text-sm pointer-events-none"
+              >
+                <i class="fas fa-globe text-2xl mb-2 opacity-50" />
+                <p>No requests match this filter</p>
+              </div>
             </div>
           </div>
         </template>

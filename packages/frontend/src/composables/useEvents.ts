@@ -7,18 +7,19 @@ export function useEvents(sdk: FrontendSDK) {
   const { fetchSessions } = useSession();
 
   const registerEventListeners = () => {
-    sdk.backend.onEvent("scan-result-created", (data) => {
-      if (data.sessionId !== sessionStore.selectedSessionId) {
+    sdk.backend.onEvent("scan-result-created", (sessionId, result) => {
+      if (sessionId !== sessionStore.selectedSessionId) {
         return;
       }
-      sessionStore.addSessionResult(data.sessionId, data.result);
+      sessionStore.addSessionResult(sessionId, result);
     });
 
-    sdk.backend.onEvent("scan-complete", (data) => {
-      if (data.sessionId !== sessionStore.selectedSessionId) {
+    sdk.backend.onEvent("scan-complete", (sessionId) => {
+      if (sessionId !== sessionStore.selectedSessionId) {
         return;
       }
-      sessionStore.setScanState(data.sessionId, "idle");
+      sessionStore.setScanState(sessionId, "idle");
+      void fetchSessions();
       sdk.window.showToast("Scan complete", { variant: "success" });
     });
 

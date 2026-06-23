@@ -1,11 +1,11 @@
 import { ref } from "vue";
 
 import { useSDK } from "@/plugins/sdk";
-import { useSettingsStore } from "@/stores";
+import { useResourcesStore } from "@/stores";
 
-export function useSettings() {
+export function useResources() {
   const sdk = useSDK();
-  const store = useSettingsStore();
+  const store = useResourcesStore();
   const isLoading = ref(false);
   const error = ref<string | undefined>(undefined);
 
@@ -35,43 +35,6 @@ export function useSettings() {
     if (result.kind === "Ok") {
       await fetchDiscordWebhooks();
       sdk.window.showToast("Webhook deleted", { variant: "success" });
-    } else {
-      sdk.window.showToast(result.error, { variant: "error" });
-    }
-  };
-
-  // ─── Callbacks ───
-
-  const fetchCallbackConfigs = async () => {
-    const result = await sdk.backend.getCallbackConfigs();
-    if (result.kind === "Ok") {
-      store.setCallbackConfigs(result.value);
-    } else {
-      error.value = result.error;
-    }
-  };
-
-  const saveCallbackConfig = async (
-    identifier: string,
-    providerUrl: string,
-  ) => {
-    const result = await sdk.backend.saveCallbackConfig(
-      identifier,
-      providerUrl,
-    );
-    if (result.kind === "Ok") {
-      await fetchCallbackConfigs();
-      sdk.window.showToast("Callback saved", { variant: "success" });
-    } else {
-      sdk.window.showToast(result.error, { variant: "error" });
-    }
-  };
-
-  const deleteCallbackConfig = async (identifier: string) => {
-    const result = await sdk.backend.deleteCallbackConfig(identifier);
-    if (result.kind === "Ok") {
-      await fetchCallbackConfigs();
-      sdk.window.showToast("Callback deleted", { variant: "success" });
     } else {
       sdk.window.showToast(result.error, { variant: "error" });
     }
@@ -183,7 +146,6 @@ export function useSettings() {
   const fetchAll = async () => {
     isLoading.value = true;
     await fetchDiscordWebhooks();
-    await fetchCallbackConfigs();
     await fetchPayloadFiles();
     await fetchPayloadLists();
     await fetchConstants();
@@ -197,9 +159,6 @@ export function useSettings() {
     fetchDiscordWebhooks,
     saveDiscordWebhook,
     deleteDiscordWebhook,
-    fetchCallbackConfigs,
-    saveCallbackConfig,
-    deleteCallbackConfig,
     fetchPayloadFiles,
     savePayloadFile,
     deletePayloadFile,

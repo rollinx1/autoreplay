@@ -1,10 +1,36 @@
 import type { DefineAPI, SDK } from "caido:plugin";
 
 import { addCheck, deleteCheck, getChecks, updateCheck } from "./api/checks";
-import { getRequestResponse, getSetupRequests } from "./api/requests";
+import {
+  addScanProfile,
+  deleteScanProfile,
+  getScanProfiles,
+  updateScanProfile,
+} from "./api/profiles";
+import {
+  getFilteredRequests,
+  getRequestResponse,
+  getRequestsByIds,
+  getSetupRequests,
+} from "./api/requests";
+import {
+  deleteConstant,
+  deleteDiscordWebhook,
+  deletePayloadFile,
+  deletePayloadList,
+  getConstants,
+  getDiscordWebhooks,
+  getPayloadFiles,
+  getPayloadLists,
+  saveConstant,
+  saveDiscordWebhook,
+  savePayloadFile,
+  savePayloadList,
+} from "./api/resources";
 import {
   executeScan,
   getScanResults,
+  getScanState,
   pauseScan,
   resumeScan,
   stopScan,
@@ -16,23 +42,6 @@ import {
   getSessions,
   updateSession,
 } from "./api/session";
-import {
-  deleteCallbackConfig,
-  deleteConstant,
-  deleteDiscordWebhook,
-  deletePayloadFile,
-  deletePayloadList,
-  getCallbackConfigs,
-  getConstants,
-  getDiscordWebhooks,
-  getPayloadFiles,
-  getPayloadLists,
-  saveCallbackConfig,
-  saveConstant,
-  saveDiscordWebhook,
-  savePayloadFile,
-  savePayloadList,
-} from "./api/settings";
 import { seedChecks } from "./core/checks";
 import { initializeDatabase } from "./database";
 import { BackendEvent } from "./types";
@@ -41,6 +50,8 @@ import type { PluginEvents } from "./types";
 export type API = DefineAPI<{
   createSession: typeof createSession;
   getSetupRequests: typeof getSetupRequests;
+  getFilteredRequests: typeof getFilteredRequests;
+  getRequestsByIds: typeof getRequestsByIds;
   getRequestResponse: typeof getRequestResponse;
   getSessions: typeof getSessions;
   deleteSession: typeof deleteSession;
@@ -50,17 +61,19 @@ export type API = DefineAPI<{
   getChecks: typeof getChecks;
   updateCheck: typeof updateCheck;
   deleteCheck: typeof deleteCheck;
+  addScanProfile: typeof addScanProfile;
+  getScanProfiles: typeof getScanProfiles;
+  updateScanProfile: typeof updateScanProfile;
+  deleteScanProfile: typeof deleteScanProfile;
   executeScan: typeof executeScan;
   pauseScan: typeof pauseScan;
   resumeScan: typeof resumeScan;
   stopScan: typeof stopScan;
+  getScanState: typeof getScanState;
   getScanResults: typeof getScanResults;
   getDiscordWebhooks: typeof getDiscordWebhooks;
   saveDiscordWebhook: typeof saveDiscordWebhook;
   deleteDiscordWebhook: typeof deleteDiscordWebhook;
-  getCallbackConfigs: typeof getCallbackConfigs;
-  saveCallbackConfig: typeof saveCallbackConfig;
-  deleteCallbackConfig: typeof deleteCallbackConfig;
   getPayloadFiles: typeof getPayloadFiles;
   savePayloadFile: typeof savePayloadFile;
   deletePayloadFile: typeof deletePayloadFile;
@@ -78,6 +91,8 @@ export async function init(sdk: SDK<API, PluginEvents>) {
 
   sdk.api.register("createSession", createSession);
   sdk.api.register("getSetupRequests", getSetupRequests);
+  sdk.api.register("getFilteredRequests", getFilteredRequests);
+  sdk.api.register("getRequestsByIds", getRequestsByIds);
   sdk.api.register("getRequestResponse", getRequestResponse);
   sdk.api.register("getSessions", getSessions);
   sdk.api.register("deleteSession", deleteSession);
@@ -87,17 +102,19 @@ export async function init(sdk: SDK<API, PluginEvents>) {
   sdk.api.register("getChecks", getChecks);
   sdk.api.register("updateCheck", updateCheck);
   sdk.api.register("deleteCheck", deleteCheck);
+  sdk.api.register("addScanProfile", addScanProfile);
+  sdk.api.register("getScanProfiles", getScanProfiles);
+  sdk.api.register("updateScanProfile", updateScanProfile);
+  sdk.api.register("deleteScanProfile", deleteScanProfile);
   sdk.api.register("executeScan", executeScan);
   sdk.api.register("pauseScan", pauseScan);
   sdk.api.register("resumeScan", resumeScan);
   sdk.api.register("stopScan", stopScan);
+  sdk.api.register("getScanState", getScanState);
   sdk.api.register("getScanResults", getScanResults);
   sdk.api.register("getDiscordWebhooks", getDiscordWebhooks);
   sdk.api.register("saveDiscordWebhook", saveDiscordWebhook);
   sdk.api.register("deleteDiscordWebhook", deleteDiscordWebhook);
-  sdk.api.register("getCallbackConfigs", getCallbackConfigs);
-  sdk.api.register("saveCallbackConfig", saveCallbackConfig);
-  sdk.api.register("deleteCallbackConfig", deleteCallbackConfig);
   sdk.api.register("getPayloadFiles", getPayloadFiles);
   sdk.api.register("savePayloadFile", savePayloadFile);
   sdk.api.register("deletePayloadFile", deletePayloadFile);
@@ -109,6 +126,6 @@ export async function init(sdk: SDK<API, PluginEvents>) {
   sdk.api.register("deleteConstant", deleteConstant);
 
   sdk.events.onProjectChange(() => {
-    sdk.api.send(BackendEvent.ProjectChanged, {});
+    sdk.api.send(BackendEvent.ProjectChanged);
   });
 }

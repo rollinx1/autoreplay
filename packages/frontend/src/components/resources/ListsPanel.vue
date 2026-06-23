@@ -4,11 +4,11 @@ import Button from "primevue/button";
 import { onMounted } from "vue";
 
 import { useDialog } from "@/composables/useDialog";
-import { useSettings } from "@/composables/useSettings";
-import { useSettingsStore } from "@/stores";
+import { useResources } from "@/composables/useResources";
+import { useResourcesStore } from "@/stores";
 
-const store = useSettingsStore();
-const { fetchPayloadLists, deletePayloadList } = useSettings();
+const store = useResourcesStore();
+const { fetchPayloadLists, deletePayloadList } = useResources();
 const { openAddList } = useDialog();
 
 onMounted(() => {

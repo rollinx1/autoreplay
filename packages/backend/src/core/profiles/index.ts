@@ -1,0 +1,1 @@
+export { seedProfiles } from "./seed";

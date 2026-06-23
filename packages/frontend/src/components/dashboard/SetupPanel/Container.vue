@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { Card } from "@caido-utils/ui-components";
+import Drawer from "primevue/drawer";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
 import { ref } from "vue";
 
+import AdvancedOptionsTab from "./AdvancedOptionsTab.vue";
 import ChecksTab from "./ChecksTab.vue";
 import RequestPanel from "./RequestPanel.vue";
-import SettingsTab from "./SettingsTab.vue";
+import ResourcesTab from "./ResourcesTab.vue";
 import SetupHeader from "./SetupHeader.vue";
 
-const rightTab = ref<"checks" | "settings">("checks");
+const rightTab = ref<"checks" | "resources">("checks");
+const showAdvanced = ref(false);
 </script>
 
 <template>
@@ -34,10 +37,10 @@ const rightTab = ref<"checks" | "settings">("checks");
       >
         <!-- Left: Table + Preview -->
         <SplitterPanel :size="67" :min-size="40" class="overflow-hidden">
-          <RequestPanel />
+          <RequestPanel @open-advanced="showAdvanced = true" />
         </SplitterPanel>
 
-        <!-- Right: Checks + Settings -->
+        <!-- Right: Checks + Resources -->
         <SplitterPanel :size="33" :min-size="20" class="overflow-hidden">
           <Card class="h-full flex flex-col">
             <template #content>
@@ -58,23 +61,45 @@ const rightTab = ref<"checks" | "settings">("checks");
                   <button
                     class="px-4 py-3 text-sm font-semibold"
                     :class="
-                      rightTab === 'settings'
+                      rightTab === 'resources'
                         ? 'text-secondary-400 border-b-2 border-secondary-400'
                         : 'text-surface-500 hover:text-surface-300'
                     "
-                    @click="rightTab = 'settings'"
+                    @click="rightTab = 'resources'"
                   >
-                    Settings
+                    Resources
                   </button>
                 </div>
 
                 <ChecksTab v-if="rightTab === 'checks'" />
-                <SettingsTab v-if="rightTab === 'settings'" />
+                <ResourcesTab v-if="rightTab === 'resources'" />
               </div>
             </template>
           </Card>
         </SplitterPanel>
       </Splitter>
     </div>
+
+    <!-- Advanced Options Drawer -->
+    <Teleport to="body">
+      <Drawer
+        v-model:visible="showAdvanced"
+        position="right"
+        block-scroll
+        :pt="{
+          root: {
+            class:
+              'bg-surface-800 border-l border-surface-700 w-80 h-full flex flex-col',
+          },
+          header: { class: '!hidden' },
+          content: {
+            class: 'bg-surface-800 flex flex-col h-full overflow-hidden p-0',
+          },
+          mask: { class: 'bg-transparent' },
+        }"
+      >
+        <AdvancedOptionsTab @close="showAdvanced = false" />
+      </Drawer>
+    </Teleport>
   </div>
 </template>

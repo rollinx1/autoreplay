@@ -26,16 +26,16 @@ export function useDialog() {
     store.openDialog("add-webhook");
   };
 
-  const openAddCallback = () => {
-    store.openDialog("add-callback");
-  };
-
   const openAddList = () => {
     store.openDialog("add-list");
   };
 
   const openAddConstant = () => {
     store.openDialog("add-constant");
+  };
+
+  const openSendToAutoReplay = (requestIds: string[]) => {
+    store.openDialog("send-to-autoreplay", { requestIds });
   };
 
   const closeDialog = () => {
@@ -51,9 +51,9 @@ export function useDialog() {
     openDeleteCheck,
     openGuide,
     openAddWebhook,
-    openAddCallback,
     openAddList,
     openAddConstant,
+    openSendToAutoReplay,
     closeDialog,
   };
 }
